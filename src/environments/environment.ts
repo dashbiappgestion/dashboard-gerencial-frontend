@@ -4,5 +4,5 @@ export const environment = {
   production: !isLocalhost,
   apiUrl: isLocalhost 
     ? 'http://localhost:8000/api' 
-    : 'https://dashboard-gerencial-backend.onrender.com'
+    : 'https://dashboard-gerencial-backend.onrender.com/api'
 };
