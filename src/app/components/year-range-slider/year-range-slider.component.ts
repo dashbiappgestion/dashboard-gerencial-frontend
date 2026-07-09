@@ -42,25 +42,23 @@ export class YearRangeSliderComponent implements OnInit {
     this.emitRange();
   }
 
-  /** Convert year → percentage from TOP (0% = top = MAX, 100% = bottom = MIN) */
-  yearToTopPct(year: number): number {
-    return ((MAX_YEAR - year) / (MAX_YEAR - MIN_YEAR)) * 100;
+  yearToLeftPct(year: number): number {
+    return ((year - MIN_YEAR) / (MAX_YEAR - MIN_YEAR)) * 100;
   }
 
-  get fromTopPct(): number {
-    return this.yearToTopPct(this.fromYear());
+  get fromLeftPct(): number {
+    return this.yearToLeftPct(this.fromYear());
   }
 
-  get toTopPct(): number {
-    return this.yearToTopPct(this.toYear());
+  get toLeftPct(): number {
+    return this.yearToLeftPct(this.toYear());
   }
 
-  /** Track fill: between toYear (higher, lower top%) and fromYear (lower, higher top%) */
-  get fillTop(): number {
-    return Math.min(this.fromTopPct, this.toTopPct);
+  get fillLeft(): number {
+    return Math.min(this.fromLeftPct, this.toLeftPct);
   }
-  get fillHeight(): number {
-    return Math.abs(this.fromTopPct - this.toTopPct);
+  get fillWidth(): number {
+    return Math.abs(this.toLeftPct - this.fromLeftPct);
   }
 
   startDrag(handle: 'from' | 'to', event: MouseEvent | TouchEvent): void {
@@ -72,12 +70,11 @@ export class YearRangeSliderComponent implements OnInit {
   @HostListener('document:touchmove', ['$event'])
   onMove(event: MouseEvent | TouchEvent): void {
     if (!this.dragging || !this.trackRef) return;
-    const clientY =
-      event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+    const clientX =
+      event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     const rect = this.trackRef.nativeElement.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    // pct=0 → MAX_YEAR, pct=1 → MIN_YEAR
-    const year = Math.round(MAX_YEAR - pct * (MAX_YEAR - MIN_YEAR));
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const year = Math.round(MIN_YEAR + pct * (MAX_YEAR - MIN_YEAR));
     const clamped = Math.max(MIN_YEAR, Math.min(MAX_YEAR, year));
 
     if (this.dragging === 'from') {
@@ -98,9 +95,14 @@ export class YearRangeSliderComponent implements OnInit {
     this.rangeChange.emit({ from: this.fromYear(), to: this.toYear() });
   }
 
-  selectSingleYear(year: number): void {
-    this.fromYear.set(year);
-    this.toYear.set(year);
+  selectYear(year: number): void {
+    const distFrom = Math.abs(year - this.fromYear());
+    const distTo = Math.abs(year - this.toYear());
+    if (distFrom <= distTo) {
+      this.fromYear.set(Math.min(year, this.toYear()));
+    } else {
+      this.toYear.set(Math.max(year, this.fromYear()));
+    }
     this.emitRange();
   }
 

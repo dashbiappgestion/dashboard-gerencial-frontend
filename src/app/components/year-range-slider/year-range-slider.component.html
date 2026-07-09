@@ -1,58 +1,50 @@
-<div class="yrs-container">
-  <p class="yrs-label">Período</p>
+<div class="yrs-wrap">
 
-  <div class="yrs-range-badge">
-    <span class="yrs-year-val">{{ fromYear() }}</span>
-    @if (fromYear() !== toYear()) {
-      <span class="yrs-sep">–</span>
-      <span class="yrs-year-val">{{ toYear() }}</span>
-    }
+  <div class="yrs-header">
+    <span class="yrs-label">Período</span>
+    <span class="yrs-range-text">
+      {{ fromYear() }}
+      @if (fromYear() !== toYear()) { <span class="yrs-dash">–</span> {{ toYear() }} }
+    </span>
+    <button class="yrs-reset" (click)="resetRange()" title="Ver todo">Todo</button>
   </div>
 
-  <div class="yrs-track-wrap">
+  <div class="yrs-body">
+    <div class="yrs-track" #track>
+      <div
+        class="yrs-fill"
+        [style.left.%]="fillLeft"
+        [style.width.%]="fillWidth"
+      ></div>
+
+      <div
+        class="yrs-handle"
+        [style.left.%]="fromLeftPct"
+        (mousedown)="startDrag('from', $event)"
+        (touchstart)="startDrag('from', $event)"
+        title="{{ fromYear() }}"
+      ><div class="yrs-grip"></div></div>
+
+      <div
+        class="yrs-handle"
+        [style.left.%]="toLeftPct"
+        (mousedown)="startDrag('to', $event)"
+        (touchstart)="startDrag('to', $event)"
+        title="{{ toYear() }}"
+      ><div class="yrs-grip"></div></div>
+    </div>
+
     <div class="yrs-ticks">
       @for (year of years; track year) {
         <div
           class="yrs-tick"
           [class.yrs-tick--active]="year >= fromYear() && year <= toYear()"
-          [style.top.%]="yearToTopPct(year)"
-          (click)="selectSingleYear(year)"
+          (click)="selectYear(year)"
         >
-          <span class="yrs-tick-label">{{ year }}</span>
-          <span class="yrs-tick-line"></span>
+          <span class="yrs-tick-lbl">{{ year }}</span>
         </div>
       }
     </div>
-
-    <div class="yrs-track" #track>
-      <div
-        class="yrs-fill"
-        [style.top.%]="fillTop"
-        [style.height.%]="fillHeight"
-      ></div>
-
-      <div
-        class="yrs-handle yrs-handle--from"
-        [style.top.%]="fromTopPct"
-        (mousedown)="startDrag('from', $event)"
-        (touchstart)="startDrag('from', $event)"
-        [class.yrs-handle--active]="fromYear() === toYear()"
-        title="{{ fromYear() }}"
-      >
-        <div class="yrs-handle-grip"></div>
-      </div>
-
-      <div
-        class="yrs-handle yrs-handle--to"
-        [style.top.%]="toTopPct"
-        (mousedown)="startDrag('to', $event)"
-        (touchstart)="startDrag('to', $event)"
-        title="{{ toYear() }}"
-      >
-        <div class="yrs-handle-grip"></div>
-      </div>
-    </div>
   </div>
 
-  <button class="yrs-reset" (click)="resetRange()">Todo</button>
 </div>

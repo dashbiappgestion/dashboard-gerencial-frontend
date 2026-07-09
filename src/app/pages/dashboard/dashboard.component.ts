@@ -36,8 +36,23 @@ export class DashboardComponent {
   readonly data = signal<DashboardData | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly dimmed = signal(false);
+  readonly blurred = signal(false);
+  readonly cardBlurs = signal<number[]>([0, 0, 0, 0]);
+  readonly panelBlurs = signal<{ donut: number; scatter: number; line: number }>({
+    donut: 0,
+    scatter: 0,
+    line: 0,
+  });
 
   private currentRange: YearRange = { from: 2026, to: 2030 };
+  private pendingRange: YearRange | null = null;
+  private debounceId: ReturnType<typeof setTimeout> | null = null;
+  private readonly DEBOUNCE_MS = 1500;
+  private readonly FADE_MS = 380;
+  private readonly BLUR_MS = 420;
+  private readonly BLUR_MIN_PX = 4;
+  private readonly BLUR_MAX_PX = 10;
 
   constructor() {
     this.loadData(2026, 2030);
@@ -63,10 +78,73 @@ export class DashboardComponent {
     });
   }
 
+  private randomBlur(): number {
+    return Math.round((this.BLUR_MIN_PX + Math.random() * (this.BLUR_MAX_PX - this.BLUR_MIN_PX)) * 10) / 10;
+  }
+
+  private refreshData(anioInicio: number, anioFin: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.cardBlurs.set([this.randomBlur(), this.randomBlur(), this.randomBlur(), this.randomBlur()]);
+    this.panelBlurs.set({
+      donut: this.randomBlur(),
+      scatter: this.randomBlur(),
+      line: this.randomBlur(),
+    });
+    this.dimmed.set(true);
+    this.blurred.set(true);
+    this.cdr.detectChanges();
+
+    this.dashboardService.getDashboard(anioInicio, anioFin).subscribe({
+      next: (response) => {
+        this.dimmed.set(false);
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.data.set(response);
+          this.blurred.set(false);
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.loading.set(false);
+            this.cdr.detectChanges();
+          }, this.BLUR_MS);
+        }, this.FADE_MS);
+      },
+      error: (err) => {
+        const detail = err?.error?.detail ?? err?.message ?? 'Error desconocido';
+        this.error.set(
+          `${detail}. ¿Backend corriendo en http://localhost:8000? Ejecuta: uvicorn app.main:app --reload`,
+        );
+        this.dimmed.set(false);
+        this.blurred.set(false);
+        this.loading.set(false);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   onYearRangeChange(range: YearRange): void {
-    if (range.from === this.currentRange.from && range.to === this.currentRange.to) return;
-    this.currentRange = range;
-    this.loadData(range.from, range.to);
+    if (range.from === this.currentRange.from && range.to === this.currentRange.to) {
+      this.pendingRange = null;
+      if (this.debounceId) {
+        clearTimeout(this.debounceId);
+        this.debounceId = null;
+      }
+      return;
+    }
+
+    this.pendingRange = range;
+
+    if (this.debounceId) {
+      clearTimeout(this.debounceId);
+    }
+    this.debounceId = setTimeout(() => {
+      this.debounceId = null;
+      const finalRange = this.pendingRange;
+      if (!finalRange) return;
+      this.pendingRange = null;
+      this.currentRange = finalRange;
+      this.refreshData(finalRange.from, finalRange.to);
+    }, this.DEBOUNCE_MS);
   }
 
   openCardModal(kpiId: string): void {
