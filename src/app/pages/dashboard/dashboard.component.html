@@ -1,94 +1,106 @@
-<div class="page">
-  @if (loading()) {
-    <div class="loading">
-      <span class="loading-spinner">
-        <span class="spinner-ring"></span>
-        Cargando datos...
-      </span>
-    </div>
-  } @else if (error()) {
-    <div class="error-msg">
-      No se pudo conectar con la API.<br />
-      {{ error() }}<br /><br />
-      Asegúrate de ejecutar: <em>uvicorn app.main:app --reload</em>
-    </div>
-  } @else if (data(); as d) {
-    <header class="masthead">
-      <div class="header-title">
-        <h1>Resumen Ejecutivo</h1>
-      </div>
-      <div class="semaphore-key">
-        <span class="key-item" data-status="green"><i></i>Cumple o supera la meta</span>
-        <span class="key-item" data-status="yellow"><i></i>Cerca de la meta</span>
-        <span class="key-item" data-status="red"><i></i>Bajo la meta</span>
-      </div>
-    </header>
+<div class="page-shell">
 
-    <section class="kpi-grid">
-      @for (card of d.tarjetas.tarjetas; track card.id; let i = $index) {
-        <app-kpi-card [card]="card" [index]="i" (cardClick)="openCardModal(card.id)" />
-      }
-    </section>
+  <aside class="side-panel side-panel--left">
+    <app-year-range-slider (rangeChange)="onYearRangeChange($event)" />
+  </aside>
 
-    <section class="charts-grid">
-      <div class="panel panel-donut">
-        <div class="panel-head">
-          <p class="panel-eyebrow">Procesos internos</p>
-          <h2 class="panel-title">Tiempo de Desarrollo de Productos</h2>
-          <p class="panel-sub">
-            Distribución promedio por categoría (meses) · meta {{ d.desarrollo.meta }} meses · clic
-            en categoría para detalle
-          </p>
-        </div>
-        <app-donut-chart
-          [categorias]="d.desarrollo.categorias"
-          (categoryClick)="openDesarrolloModal($event)"
-        />
+  <div class="page">
+    @if (loading()) {
+      <div class="loading">
+        <span class="loading-spinner">
+          <span class="spinner-ring"></span>
+          Cargando datos...
+        </span>
       </div>
-
-      <div
-        class="panel panel-scatter panel-clickable"
-        tabindex="0"
-        (click)="openScatterModal()"
-        (keydown.enter)="openScatterModal()"
-      >
-        <div class="panel-head">
-          <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
-          <h2 class="panel-title">Capacitación vs. Tasa de Errores</h2>
-          <p class="panel-sub">
-            Cada punto = mes × región · r = {{ d.capacitacion_errores.stats.r_pearson ?? '-' }} ·
-            clic para ampliar
-          </p>
-        </div>
-        <div (click)="$event.stopPropagation()">
-          <app-scatter-chart [puntos]="d.capacitacion_errores.puntos" [meta_horas]="d.capacitacion_errores.meta_horas" />
-        </div>
+    } @else if (error()) {
+      <div class="error-msg">
+        No se pudo conectar con la API.<br />
+        {{ error() }}<br /><br />
+        Asegúrate de ejecutar: <em>uvicorn app.main:app --reload</em>
       </div>
-    </section>
-
-    <section class="charts-grid full">
-      <div
-        class="panel panel-line panel-clickable"
-        tabindex="0"
-        (click)="openSatisfaccionModal()"
-        (keydown.enter)="openSatisfaccionModal()"
-      >
-        <div class="panel-head">
-          <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
-          <h2 class="panel-title">Índice de Satisfacción Laboral</h2>
-          <p class="panel-sub">
-            Evolución anual global · meta {{ d.satisfaccion.meta }} pts · clic para ampliar con
-            cuartiles
-          </p>
+    } @else if (data(); as d) {
+      <header class="masthead">
+        <div class="header-title">
+          <h1>Resumen Ejecutivo</h1>
         </div>
-        <div (click)="$event.stopPropagation()">
-          <app-line-chart [serie]="d.satisfaccion.serie" [meta]="d.satisfaccion.meta" />
+        <div class="semaphore-key">
+          <span class="key-item" data-status="green"><i></i>Cumple o supera la meta</span>
+          <span class="key-item" data-status="yellow"><i></i>Cerca de la meta</span>
+          <span class="key-item" data-status="red"><i></i>Bajo la meta</span>
         </div>
-      </div>
-    </section>
+      </header>
 
-    <p class="foot">Dashboard Gerencial Apple Inc. - datos en vivo desde Supabase (PostgreSQL).</p>
-  }
+      <section class="kpi-grid">
+        @for (card of d.tarjetas.tarjetas; track card.id; let i = $index) {
+          <app-kpi-card [card]="card" [index]="i" (cardClick)="openCardModal(card.id)" />
+        }
+      </section>
+
+      <section class="charts-grid">
+        <div class="panel panel-donut">
+          <div class="panel-head">
+            <p class="panel-eyebrow">Procesos internos</p>
+            <h2 class="panel-title">Tiempo de Desarrollo de Productos</h2>
+            <p class="panel-sub">
+              Distribución promedio por categoría (meses) · meta {{ d.desarrollo.meta }} meses · clic
+              en categoría para detalle
+            </p>
+          </div>
+          <app-donut-chart
+            [categorias]="d.desarrollo.categorias"
+            (categoryClick)="openDesarrolloModal($event)"
+          />
+        </div>
+
+        <div
+          class="panel panel-scatter panel-clickable"
+          tabindex="0"
+          (click)="openScatterModal()"
+          (keydown.enter)="openScatterModal()"
+        >
+          <div class="panel-head">
+            <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
+            <h2 class="panel-title">Capacitación vs. Tasa de Errores</h2>
+            <p class="panel-sub">
+              Cada punto = mes × región · r = {{ d.capacitacion_errores.stats.r_pearson ?? '-' }} ·
+              clic para ampliar
+            </p>
+          </div>
+          <div (click)="$event.stopPropagation()">
+            <app-scatter-chart [puntos]="d.capacitacion_errores.puntos" [meta_horas]="d.capacitacion_errores.meta_horas" />
+          </div>
+        </div>
+      </section>
+
+      <section class="charts-grid full">
+        <div
+          class="panel panel-line panel-clickable"
+          tabindex="0"
+          (click)="openSatisfaccionModal()"
+          (keydown.enter)="openSatisfaccionModal()"
+        >
+          <div class="panel-head">
+            <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
+            <h2 class="panel-title">Índice de Satisfacción Laboral</h2>
+            <p class="panel-sub">
+              Evolución anual global · meta {{ d.satisfaccion.meta }} pts · clic para ampliar con
+              cuartiles
+            </p>
+          </div>
+          <div (click)="$event.stopPropagation()">
+            <app-line-chart [serie]="d.satisfaccion.serie" [meta]="d.satisfaccion.meta" />
+          </div>
+        </div>
+      </section>
+
+      <p class="foot">Dashboard Gerencial Apple Inc. - datos en vivo desde Supabase (PostgreSQL).</p>
+    }
+  </div>
+
+  <aside class="side-panel side-panel--right">
+    <app-scenario-selector />
+  </aside>
+
 </div>
 
 <app-chart-tooltip />

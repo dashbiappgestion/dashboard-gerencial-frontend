@@ -6,6 +6,8 @@ import { KpiCardComponent } from '../../components/kpi-card/kpi-card.component';
 import { KpiModalComponent } from '../../components/kpi-modal/kpi-modal.component';
 import { LineChartComponent } from '../../components/line-chart/line-chart.component';
 import { ScatterChartComponent } from '../../components/scatter-chart/scatter-chart.component';
+import { YearRangeSliderComponent, YearRange } from '../../components/year-range-slider/year-range-slider.component';
+import { ScenarioSelectorComponent } from '../../components/scenario-selector/scenario-selector.component';
 import { DashboardData } from '../../models/dashboard.models';
 import { KpiModalId } from '../../models/modal.models';
 import { DashboardService } from '../../services/dashboard.service';
@@ -21,6 +23,8 @@ import { ModalService } from '../../services/modal.service';
     LineChartComponent,
     ChartTooltipComponent,
     KpiModalComponent,
+    YearRangeSliderComponent,
+    ScenarioSelectorComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -33,8 +37,16 @@ export class DashboardComponent {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
+  private currentRange: YearRange = { from: 2026, to: 2030 };
+
   constructor() {
-    this.dashboardService.getDashboard().subscribe({
+    this.loadData(2026, 2030);
+  }
+
+  private loadData(anioInicio: number, anioFin: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.dashboardService.getDashboard(anioInicio, anioFin).subscribe({
       next: (response) => {
         this.data.set(response);
         this.loading.set(false);
@@ -49,6 +61,12 @@ export class DashboardComponent {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  onYearRangeChange(range: YearRange): void {
+    if (range.from === this.currentRange.from && range.to === this.currentRange.to) return;
+    this.currentRange = range;
+    this.loadData(range.from, range.to);
   }
 
   openCardModal(kpiId: string): void {

@@ -1,0 +1,20 @@
+<div class="sce-container">
+  <p class="sce-label">Escenario</p>
+
+  <div class="sce-buttons">
+    @for (s of scenarios; track s.id) {
+      <button
+        class="sce-btn"
+        [class.sce-btn--active]="activeScenario() === s.id"
+        [attr.data-scenario]="s.id"
+        (click)="select(s.id)"
+        [title]="s.label"
+      >
+        <span class="sce-icon">{{ s.icon }}</span>
+        <span class="sce-text">{{ s.label }}</span>
+      </button>
+    }
+  </div>
+
+  <p class="sce-note">Próximamente</p>
+</div>
