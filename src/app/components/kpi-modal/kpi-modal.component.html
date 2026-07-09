@@ -1,0 +1,217 @@
+<div
+
+  class="modal-overlay"
+
+  [class.visible]="modal.visible()"
+
+  (click)="onOverlayClick($event)"
+
+  (keydown.escape)="close()"
+
+>
+
+  <div class="modal modal-wide" role="dialog" aria-modal="true">
+
+    @if (modal.loading() && !modal.data()) {
+
+      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+
+      <div class="loading">
+        <span class="loading-spinner">
+          <span class="spinner-ring"></span>
+          Cargando datos...
+        </span>
+      </div>
+
+    } @else if (modal.error() && !modal.data()) {
+
+      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+
+      <div class="error-msg">{{ modal.error() }}</div>
+
+    } @else if (modal.data(); as d) {
+
+      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+
+      <h2 class="modal-title">{{ d.config.titulo }}</h2>
+
+      <p class="modal-sub">Detalle histórico con banda de margen de error, cuartiles y tendencia</p>
+
+
+
+      <div class="modal-filters">
+
+        @if (d.config.region) {
+
+          <label class="filter-field">
+
+            <span>Región</span>
+
+            <select (change)="onRegionChange($event)">
+
+              <option value="">Todas</option>
+
+              @for (r of d.filtros.regiones; track r) {
+
+                <option [value]="r" [selected]="modal.filters().region === r">{{ r }}</option>
+
+              }
+
+            </select>
+
+          </label>
+
+        } @else if (d.config.region_msg) {
+
+          <p class="filter-disabled">{{ d.config.region_msg }}</p>
+
+        }
+
+
+        @if (d.config.frecuencia !== 'evento') {
+          <label class="filter-field">
+
+            <span>Año</span>
+
+            <select (change)="onAnioChange($event)">
+
+              <option value="">Todos</option>
+
+              @for (a of d.filtros.anios; track a) {
+
+                <option [value]="a" [selected]="modal.filters().anio === a">{{ a }}</option>
+
+              }
+
+            </select>
+
+          </label>
+        }
+
+
+        @if (d.config.frecuencia === 'trimestral') {
+
+          <label class="filter-field">
+
+            <span>Trimestre</span>
+
+            <select (change)="onTrimestreChange($event)">
+
+              <option value="">Todos</option>
+
+              @for (t of d.filtros.trimestres; track t) {
+
+                <option [value]="t" [selected]="modal.filters().trimestre === t">Q{{ t }}</option>
+
+              }
+
+            </select>
+
+          </label>
+
+        }
+
+
+
+        @if (d.config.frecuencia === 'mensual') {
+
+          <label class="filter-field">
+
+            <span>Mes</span>
+
+            <select (change)="onMesChange($event)">
+
+              <option value="">Todos</option>
+
+              @for (m of d.filtros.meses; track m) {
+
+                <option [value]="m" [selected]="modal.filters().mes === m">{{ m }}</option>
+
+              }
+
+            </select>
+
+          </label>
+
+        }
+
+
+
+        @if (isProductos(d)) {
+
+          <label class="filter-field">
+
+            <span>Categoría</span>
+
+            <select (change)="onCategoriaChange($event)">
+
+              @for (c of d.categorias; track c) {
+
+                <option [value]="c" [selected]="d.categoria === c">{{ c }}</option>
+
+              }
+
+            </select>
+
+          </label>
+
+        }
+
+      </div>
+
+
+
+      @if (modal.loading()) {
+
+        <div class="loading">Actualizando…</div>
+
+      } @else if (modal.error()) {
+
+        <div class="error-msg">{{ modal.error() }}</div>
+
+      } @else if (isTrend(d)) {
+
+        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta" />
+
+        @if (d.stats) {
+
+          <p class="modal-stats-line">
+
+            n = {{ d.stats.n_periodos ?? d.serie.length }}
+
+            · Promedio {{ d.stats.promedio }}
+
+            · σ {{ d.stats.desviacion_estandar }}
+
+            · Margen ± {{ d.stats.error_estandar }}
+
+          </p>
+
+        }
+
+      } @else if (isDispersion(d)) {
+
+        <app-scatter-detail-chart [modalData]="d" />
+
+      } @else if (isProductos(d)) {
+
+        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta" />
+
+        @if (d.stats) {
+
+          <p class="modal-stats-line">
+
+            Q1 {{ d.stats.q1 }} · Mediana {{ d.stats.mediana }} · Q3 {{ d.stats.q3 }} meses
+
+          </p>
+
+        }
+
+      }
+
+    }
+
+  </div>
+
+</div>
+

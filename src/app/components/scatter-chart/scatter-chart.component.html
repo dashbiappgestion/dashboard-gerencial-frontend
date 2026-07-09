@@ -1,0 +1,23 @@
+<svg class="scatter-svg scatter-plot" viewBox="0 0 480 300">
+  <line class="axis-line" [attr.x1]="48" [attr.y1]="axisBottomY" [attr.x2]="axisRightX" [attr.y2]="axisBottomY" />
+  <line class="axis-line" [attr.x1]="48" [attr.y1]="16" [attr.x2]="48" [attr.y2]="axisBottomY" />
+  <text class="axis-title" [attr.x]="axisTitleX" y="296" text-anchor="middle">
+    Horas de capacitación / empleado
+  </text>
+  <text class="axis-title" x="14" y="14" text-anchor="start">Tasa de errores %</text>
+  <line class="meta-line" [attr.x1]="guideMetaX()" [attr.y1]="16" [attr.x2]="guideMetaX()" [attr.y2]="axisBottomY" stroke="var(--gray-500)" stroke-width="1.2" stroke-dasharray="4 4" />
+  <text class="meta-label" [attr.x]="guideMetaX() + 4" y="26" fill="var(--gray-600)">Meta {{ meta_horas() }}h</text>
+
+  @for (pt of plotPoints(); track pt.anio + '-' + pt.mes + '-' + pt.nombre_region) {
+    <g
+      class="scatter-pt"
+      [attr.data-status]="pt.status"
+      [style.animation-delay]="pt.delay"
+      (mouseenter)="onEnter($event, pt)"
+      (mouseleave)="onLeave()"
+    >
+      <circle class="dot" [attr.cx]="pt.cx" [attr.cy]="pt.cy" r="3" fill="var(--status)" stroke="var(--ink)" stroke-opacity="0.25" stroke-width="1" />
+      <circle class="hit" [attr.cx]="pt.cx" [attr.cy]="pt.cy" r="3" />
+    </g>
+  }
+</svg>

@@ -1,0 +1,65 @@
+@if (chart(); as c) {
+  <svg class="scatter-svg scatter-plot" viewBox="0 0 640 300">
+    <defs>
+      <linearGradient id="scatterBand" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1c1a17" stop-opacity="0.1" />
+        <stop offset="100%" stop-color="#1c1a17" stop-opacity="0.02" />
+      </linearGradient>
+    </defs>
+
+    <line
+      class="axis-line"
+      [attr.x1]="52"
+      [attr.y1]="axisBottomY"
+      [attr.x2]="axisRightX"
+      [attr.y2]="axisBottomY"
+    />
+    <line class="axis-line" [attr.x1]="52" [attr.y1]="20" [attr.x2]="52" [attr.y2]="axisBottomY" />
+    <text class="axis-title" [attr.x]="axisTitleX" y="294" text-anchor="middle">
+      Horas de capacitación / empleado
+    </text>
+    <text class="axis-title" x="16" y="16" text-anchor="start">Tasa de errores %</text>
+    <line class="meta-line" [attr.x1]="c.metaX" [attr.y1]="20" [attr.x2]="c.metaX" [attr.y2]="axisBottomY" stroke="var(--gray-500)" stroke-width="1.2" stroke-dasharray="4 4" />
+    <text class="meta-label" [attr.x]="c.metaX + 5" y="30" fill="var(--gray-600)">Meta {{ modalData().meta }}h</text>
+
+    @if (c.bandD) {
+      <path [attr.d]="c.bandD" fill="url(#scatterBand)" />
+    }
+
+    @if (c.regLine) {
+      <path
+        [attr.d]="c.regLine"
+        fill="none"
+        stroke="var(--gray-600)"
+        stroke-width="2"
+        stroke-dasharray="6 4"
+      />
+    }
+
+    @for (pt of c.points; track pt.anio + '-' + pt.mes + '-' + pt.nombre_region) {
+      <g
+        class="scatter-pt"
+        [attr.data-status]="pt.outlier ? 'red' : 'green'"
+        style="opacity: 1; transform: scale(1)"
+        (mouseenter)="onEnter($event, pt)"
+        (mouseleave)="onLeave()"
+      >
+        <circle
+          class="dot"
+          [attr.cx]="pt.cx"
+          [attr.cy]="pt.cy"
+          [attr.r]="2"
+          fill="var(--status)"
+          stroke="var(--ink)"
+          stroke-opacity="0.25"
+          stroke-width="1"
+        />
+        <circle class="hit" [attr.cx]="pt.cx" [attr.cy]="pt.cy" r="2" />
+      </g>
+    }
+  </svg>
+  <p class="modal-stats-line">
+    Coeficiente r de Pearson: <strong>{{ c.r ?? '-' }}</strong>
+    · Puntos atípicos marcados en rojo (residuales de la regresión)
+  </p>
+}
