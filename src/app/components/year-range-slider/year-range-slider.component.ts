@@ -85,7 +85,6 @@ export class YearRangeSliderComponent implements OnInit {
 
     if (this.dragging === 'from') {
       if (clamped > this.toYear()) {
-        // Cruzó al otro lado → hacer swap de roles
         this.fromYear.set(this.toYear());
         this.toYear.set(clamped);
         this.dragging = 'to';
@@ -95,7 +94,6 @@ export class YearRangeSliderComponent implements OnInit {
       }
     } else {
       if (clamped < this.fromYear()) {
-        // Cruzó al otro lado → hacer swap de roles
         this.toYear.set(this.fromYear());
         this.fromYear.set(clamped);
         this.dragging = 'from';
@@ -123,11 +121,9 @@ export class YearRangeSliderComponent implements OnInit {
     const distTo = Math.abs(year - this.toYear());
     if (distFrom <= distTo) {
       this.fromYear.set(year);
-      // Si from pasó a to, empujar to
       if (this.fromYear() > this.toYear()) this.toYear.set(this.fromYear());
     } else {
       this.toYear.set(year);
-      // Si to bajó a from, empujar from
       if (this.toYear() < this.fromYear()) this.fromYear.set(this.toYear());
     }
     this.emitRange();

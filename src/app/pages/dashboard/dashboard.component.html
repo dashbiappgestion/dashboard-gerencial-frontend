@@ -20,6 +20,10 @@
       <span class="key-item" data-status="yellow"><i></i>Cerca de la meta</span>
       <span class="key-item" data-status="red"><i></i>Bajo la meta</span>
     </div>
+    <button class="theme-toggle" (click)="toggleTheme()" [title]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+
+      {{ isDark() ? 'Modo Claro' : 'Modo Oscuro' }}
+    </button>
   </header>
 
   <section class="kpi-grid">

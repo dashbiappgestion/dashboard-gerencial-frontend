@@ -54,6 +54,8 @@ export class DashboardComponent {
   private readonly BLUR_MIN_PX = 4;
   private readonly BLUR_MAX_PX = 10;
 
+  readonly isDark = signal(false);
+
   constructor() {
     this.loadData(2026, 2030);
   }
@@ -149,6 +151,16 @@ export class DashboardComponent {
 
   openCardModal(kpiId: string): void {
     this.modalService.open(kpiId as KpiModalId);
+  }
+
+  toggleTheme(): void {
+    const next = !this.isDark();
+    this.isDark.set(next);
+    if (next) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
   }
 
   openDesarrolloModal(categoria: string): void {
