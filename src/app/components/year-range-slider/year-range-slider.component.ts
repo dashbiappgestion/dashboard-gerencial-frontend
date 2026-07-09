@@ -36,6 +36,9 @@ export class YearRangeSliderComponent implements OnInit {
   fromYear = signal(MIN_YEAR);
   toYear = signal(MAX_YEAR);
 
+  /** El handle activo se dibuja encima (z-index mayor). */
+  activeHandle = signal<'from' | 'to' | null>(null);
+
   private dragging: 'from' | 'to' | null = null;
 
   ngOnInit(): void {
@@ -63,13 +66,16 @@ export class YearRangeSliderComponent implements OnInit {
 
   startDrag(handle: 'from' | 'to', event: MouseEvent | TouchEvent): void {
     event.preventDefault();
+    event.stopPropagation();
     this.dragging = handle;
+    this.activeHandle.set(handle);
   }
 
   @HostListener('document:mousemove', ['$event'])
   @HostListener('document:touchmove', ['$event'])
   onMove(event: MouseEvent | TouchEvent): void {
     if (!this.dragging || !this.trackRef) return;
+
     const clientX =
       event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
     const rect = this.trackRef.nativeElement.getBoundingClientRect();
@@ -78,9 +84,25 @@ export class YearRangeSliderComponent implements OnInit {
     const clamped = Math.max(MIN_YEAR, Math.min(MAX_YEAR, year));
 
     if (this.dragging === 'from') {
-      this.fromYear.set(Math.min(clamped, this.toYear()));
+      if (clamped > this.toYear()) {
+        // Cruzó al otro lado → hacer swap de roles
+        this.fromYear.set(this.toYear());
+        this.toYear.set(clamped);
+        this.dragging = 'to';
+        this.activeHandle.set('to');
+      } else {
+        this.fromYear.set(clamped);
+      }
     } else {
-      this.toYear.set(Math.max(clamped, this.fromYear()));
+      if (clamped < this.fromYear()) {
+        // Cruzó al otro lado → hacer swap de roles
+        this.toYear.set(this.fromYear());
+        this.fromYear.set(clamped);
+        this.dragging = 'from';
+        this.activeHandle.set('from');
+      } else {
+        this.toYear.set(clamped);
+      }
     }
     this.emitRange();
   }
@@ -89,6 +111,7 @@ export class YearRangeSliderComponent implements OnInit {
   @HostListener('document:touchend')
   stopDrag(): void {
     this.dragging = null;
+    this.activeHandle.set(null);
   }
 
   private emitRange(): void {
@@ -99,9 +122,13 @@ export class YearRangeSliderComponent implements OnInit {
     const distFrom = Math.abs(year - this.fromYear());
     const distTo = Math.abs(year - this.toYear());
     if (distFrom <= distTo) {
-      this.fromYear.set(Math.min(year, this.toYear()));
+      this.fromYear.set(year);
+      // Si from pasó a to, empujar to
+      if (this.fromYear() > this.toYear()) this.toYear.set(this.fromYear());
     } else {
-      this.toYear.set(Math.max(year, this.fromYear()));
+      this.toYear.set(year);
+      // Si to bajó a from, empujar from
+      if (this.toYear() < this.fromYear()) this.fromYear.set(this.toYear());
     }
     this.emitRange();
   }

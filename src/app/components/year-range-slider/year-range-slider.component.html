@@ -20,6 +20,7 @@
       <div
         class="yrs-handle"
         [style.left.%]="fromLeftPct"
+        [style.z-index]="activeHandle() === 'from' ? 20 : (activeHandle() === null && fromYear() === toYear() ? 20 : 10)"
         (mousedown)="startDrag('from', $event)"
         (touchstart)="startDrag('from', $event)"
         title="{{ fromYear() }}"
@@ -28,6 +29,7 @@
       <div
         class="yrs-handle"
         [style.left.%]="toLeftPct"
+        [style.z-index]="activeHandle() === 'to' ? 20 : 10"
         (mousedown)="startDrag('to', $event)"
         (touchstart)="startDrag('to', $event)"
         title="{{ toYear() }}"
