@@ -8,6 +8,15 @@
   <line class="meta-line" [attr.x1]="guideMetaX()" [attr.y1]="16" [attr.x2]="guideMetaX()" [attr.y2]="axisBottomY" stroke="var(--gray-500)" stroke-width="1.2" stroke-dasharray="4 4" />
   <text class="meta-label" [attr.x]="guideMetaX() + 4" y="26" fill="var(--gray-600)">Meta {{ meta_horas() }}h</text>
 
+  @if (forecastPlot(); as fd) {
+    <line [attr.x1]="fd.xInf" [attr.y1]="fd.cy" [attr.x2]="fd.xSup" [attr.y2]="fd.cy" class="forecast-line" />
+    <line [attr.x1]="fd.cx" [attr.y1]="fd.yInf" [attr.x2]="fd.cx" [attr.y2]="fd.ySup" class="forecast-line" />
+    <path [attr.d]="'M ' + fd.cx + ' ' + (fd.cy - 6) + ' L ' + (fd.cx + 6) + ' ' + fd.cy + ' L ' + fd.cx + ' ' + (fd.cy + 6) + ' L ' + (fd.cx - 6) + ' ' + fd.cy + ' Z'"
+          class="forecast-point"
+          (mouseenter)="onForecastEnter($event, fd)"
+          (mouseleave)="onLeave()" />
+  }
+
   @for (pt of plotPoints(); track pt.anio + '-' + pt.mes + '-' + pt.nombre_region) {
     <g
       class="scatter-pt"

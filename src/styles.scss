@@ -846,6 +846,8 @@ app-donut-chart {
   position: fixed;
   inset: 0;
   background: rgba(28, 26, 23, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -897,6 +899,33 @@ app-donut-chart {
 }
 .modal-wide {
   max-width: 860px;
+}
+.modal-warning {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: rgba(224, 167, 46, 0.1);
+  border-left: 4px solid var(--c-yellow);
+  color: var(--ink);
+  font-size: 0.9rem;
+  border-radius: 4px;
+  
+  strong {
+    color: var(--c-yellow);
+  }
+
+  ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+    
+    li {
+      margin-bottom: 4px;
+    }
+  }
+}
+.modal--forecast-params {
+  max-width: 680px;
+  width: 100%;
+  max-height: 80vh;
 }
 .modal-filters {
   display: flex;
@@ -1132,3 +1161,184 @@ app-donut-chart {
 [data-theme="dark"] .theme-toggle:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
+
+.year-label {
+  font-style: italic;
+  font-size: 0.58rem;
+  color: var(--gray-500);
+  background: var(--gray-200);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: auto;
+  white-space: nowrap;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+}
+
+.gauss-section {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+}
+.gauss-svg {
+  width: 100%;
+  height: auto;
+  max-height: 160px;
+  overflow: visible;
+}
+.gauss-curve {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawCurve 1.5s ease-out forwards;
+}
+@keyframes drawCurve {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.gauss-iqr-area {
+  opacity: 0;
+  animation: fadeIqr 1s ease-out 0.8s forwards;
+}
+@keyframes fadeIqr {
+  to {
+    opacity: 1;
+  }
+}
+.gauss-median {
+  opacity: 0;
+  animation: fadeIqr 0.5s ease-out 1.2s forwards;
+}
+.gauss-rug {
+  transition: r 0.2s, stroke-width 0.2s;
+  transform-origin: center;
+}
+.gauss-rug:hover {
+  r: 6;
+  stroke-width: 1.5;
+}
+
+.forecast-params-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.fp-header {
+  font-weight: 600;
+  color: var(--gray-700);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+.fp-cell {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+.fp-label {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+.fp-input, .fp-select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.fp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.fp-btn-cancel {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  color: var(--gray-700);
+  cursor: pointer;
+}
+.fp-btn-apply {
+  padding: 0.5rem 1rem;
+  background: var(--ink);
+  border: none;
+  border-radius: 6px;
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.forecast-year-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray-600);
+  background: var(--gray-200);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.forecast-range-sub {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin: -2px 0 4px;
+  line-height: 1.3;
+}
+
+.forecast-point {
+  fill: var(--bg);
+  stroke: var(--c-yellow);
+  stroke-width: 2.5;
+  r: 5;
+}
+.forecast-line {
+  stroke: var(--c-yellow);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+.forecast-band {
+  fill: var(--c-yellow);
+  opacity: 0.15;
+}
+
+.forecast-computing {
+  filter: blur(4px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
+  user-select: none;
+}
+
+.forecast-load-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.controls-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(40%);
+  transition: opacity 0.25s, filter 0.25s;
+}
+
+
+
+

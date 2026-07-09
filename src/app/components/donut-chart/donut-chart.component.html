@@ -2,42 +2,29 @@
   <svg class="donut-svg" viewBox="0 0 200 200">
     <g class="donut-group" (mouseleave)="onGroupLeave()">
       @for (seg of segments(); track seg.categoria; let i = $index) {
-        <circle
-          #segmentRef
-          class="segment"
-          cx="100"
-          cy="100"
-          r="70"
-          [attr.stroke]="seg.color"
-          [attr.stroke-dasharray]="seg.segLen + ' ' + seg.circumference"
-          [attr.stroke-dashoffset]="seg.dashOffset"
-          [attr.transform]="'rotate(' + seg.rotation + ' 100 100)'"
-          [style.opacity]="segmentOpacity(i)"
-          [style.stroke-width]="segmentWidth(i)"
-          (mouseenter)="onSegmentEnter(i)"
-          (click)="categoryClick.emit(seg.categoria)"
-        />
+      <circle #segmentRef class="segment" cx="100" cy="100" r="70" [attr.stroke]="seg.color"
+        [attr.stroke-dasharray]="seg.segLen + ' ' + seg.circumference" [attr.stroke-dashoffset]="seg.dashOffset"
+        [attr.transform]="'rotate(' + seg.rotation + ' 100 100)'" [style.opacity]="segmentOpacity(i)"
+        [style.stroke-width]="segmentWidth(i)" (mouseenter)="onSegmentEnter(i)"
+        (click)="categoryClick.emit(seg.categoria)" />
       }
     </g>
   </svg>
   <div class="donut-center">
+    @if (centerValue()) {
     <span class="donut-center-value">{{ centerValue() }}</span>
-    <span class="donut-center-label">{{ centerLabel() }}</span>
+    }
+    <span class="donut-center-label">{{ centerSub() }}</span>
   </div>
 </div>
 
 <ul class="legend">
   @for (seg of segments(); track seg.categoria; let i = $index) {
-    <li
-      class="legend-item"
-      tabindex="0"
-      (mouseenter)="onSegmentEnter(i)"
-      (mouseleave)="onGroupLeave()"
-      (click)="categoryClick.emit(seg.categoria)"
-    >
-      <span class="legend-dot" [style.background]="seg.color"></span>
-      <span class="legend-name">{{ seg.categoria }}</span>
-      <span class="legend-pct">{{ seg.promedio_meses }} m</span>
-    </li>
+  <li class="legend-item" tabindex="0" (mouseenter)="onSegmentEnter(i)" (mouseleave)="onGroupLeave()"
+    (click)="categoryClick.emit(seg.categoria)">
+    <span class="legend-dot" [style.background]="seg.color"></span>
+    <span class="legend-name">{{ seg.categoria }}</span>
+    <span class="legend-pct">{{ seg.promedio_meses }} m · {{ seg.pct }}%</span>
+  </li>
   }
 </ul>

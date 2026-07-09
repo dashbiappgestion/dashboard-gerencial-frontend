@@ -1,6 +1,6 @@
 <article
   class="kpi-card"
-  [attr.data-status]="card().status"
+  [attr.data-status]="forecastStatus() ?? card().status"
   [style.filter]="blurred() ? 'blur(' + blurPx() + 'px)' : 'none'"
   tabindex="0"
   (click)="cardClick.emit()"
@@ -10,12 +10,30 @@
     <p class="kpi-label">{{ card().label }}</p>
     <span class="led" aria-hidden="true"></span>
   </div>
-  <p class="kpi-value"><span class="num">{{ displayValue() }}</span></p>
+
+  <p class="kpi-value">
+    <span class="num">{{ displayValue() }}</span>
+    @if (forecast(); as f) {
+      <span class="forecast-year-badge">2031 · {{ activeScenario() }}</span>
+    }
+  </p>
+
+  @if (forecast(); as f) {
+    <p class="forecast-range-sub">
+      IC 90 %:
+      {{ fmt(f.intervalo_inferior, card().decimals) }} –
+      {{ fmt(f.intervalo_superior, card().decimals) }}
+    </p>
+  }
+
   <div class="kpi-bar-track">
     <div class="kpi-bar-fill" [style.width.%]="barPct()"></div>
   </div>
   <p class="kpi-meta">
     Meta: <strong>{{ formatMeta(card()) }}</strong>
     <span class="kpi-pct">{{ fmt(card().pct, 1) }}%</span>
+    @if (yearLabel() != null) {
+      <i class="year-label">{{ yearLabel() }}</i>
+    }
   </p>
 </article>

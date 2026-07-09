@@ -13,6 +13,7 @@ import {
 import { PuntoSatisfaccion, StatusColor } from '../../models/dashboard.models';
 import { TooltipService } from '../../services/tooltip.service';
 import { catmullRom2bezier, fmt, prefersReducedMotion } from '../../utils/format.util';
+import { ForecastVariableResult } from '../../services/forecast.service';
 
 interface LineMarker {
   anio: number;
@@ -31,6 +32,8 @@ interface LineMarker {
 export class LineChartComponent {
   readonly serie = input.required<PuntoSatisfaccion[]>();
   readonly meta = input.required<number>();
+  readonly forecast = input<ForecastVariableResult | null>(null);
+  readonly activeScenario = input<string>('real');
 
   private readonly tooltip = inject(TooltipService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -67,7 +70,10 @@ export class LineChartComponent {
     const dMin = Math.min(...vals) - 5;
     const dMax = Math.max(...vals) + 5;
 
-    const xS = (i: number) => this.left + i * (plotW / Math.max(n - 1, 1));
+    const f = this.forecast();
+    const n_slots = n + (f ? 1 : 0);
+
+    const xS = (i: number) => this.left + i * (plotW / Math.max(n_slots - 1, 1));
     const yS = (v: number) => this.top + ((dMax - v) / (dMax - dMin)) * plotH;
 
     const pts = data.map((d, i) => ({ x: xS(i), y: yS(d.valor) }));
@@ -75,8 +81,30 @@ export class LineChartComponent {
     const baseline = this.h - this.bottom;
     const areaD = `${lineD} L ${pts[n - 1].x} ${baseline} L ${pts[0].x} ${baseline} Z`;
     const metaY = yS(this.meta());
+    const labels = data.map((d, i) => ({ x: xS(i), anio: d.anio }));
+
+    let forecastData = null;
+    if (f) {
+      const fX = xS(n);
+      const fY = yS(f.punto_medio);
+      const yInf = yS(f.intervalo_inferior);
+      const ySup = yS(f.intervalo_superior);
+      forecastData = {
+        cx: fX,
+        cy: fY,
+        lineD: `M ${pts[n - 1].x},${pts[n - 1].y} L ${fX},${fY}`,
+        bandD: `M ${pts[n - 1].x},${pts[n - 1].y} L ${fX},${ySup} L ${fX},${yInf} Z`,
+        label: 'Proyección 2031',
+        val: f.punto_medio,
+        inf: f.intervalo_inferior,
+        sup: f.intervalo_superior,
+      };
+      labels.push({ x: fX, anio: 2031 });
+    }
 
     const markerDelayBase = prefersReducedMotion() ? 0 : 1100;
+
+
     const markers: LineMarker[] = data.map((d, i) => {
       let status: StatusColor | null = null;
       if (i > 0) {
@@ -94,9 +122,7 @@ export class LineChartComponent {
       };
     });
 
-    const labels = data.map((d, i) => ({ x: xS(i), anio: d.anio }));
-
-    return { lineD, areaD, metaY, markers, labels };
+    return { lineD, areaD, metaY, markers, labels, forecastData };
   });
 
   readonly axisRightX = this.w - this.right;
@@ -149,6 +175,17 @@ export class LineChartComponent {
     this.tooltip.show(
       event.currentTarget as Element,
       `<strong>${marker.anio}</strong>: ${fmt(marker.valor, 1)} pts${deltaTxt}`,
+    );
+  }
+
+  onForecastEnter(event: MouseEvent, fd: any): void {
+    this.guideX.set(fd.cx);
+    this.guideVisible.set(true);
+    this.tooltip.show(
+      event.currentTarget as Element,
+      `<strong>${fd.label} (${this.activeScenario()})</strong><br>
+       Valor esperado: ${fmt(fd.val, 1)}<br>
+       <small>IC 90%: [${fmt(fd.inf, 1)} - ${fmt(fd.sup, 1)}]</small>`
     );
   }
 

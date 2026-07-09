@@ -3,6 +3,8 @@ import { Component, computed, inject, input } from '@angular/core';
 import { KpiStats, TrendPoint } from '../../models/modal.models';
 import { TooltipService } from '../../services/tooltip.service';
 import { catmullRom2bezier, fmt } from '../../utils/format.util';
+import { ForecastVariableResult } from '../../services/forecast.service';
+
 
 @Component({
   selector: 'app-trend-detail-chart',
@@ -13,6 +15,8 @@ export class TrendDetailChartComponent {
   readonly serie = input.required<TrendPoint[]>();
   readonly stats = input<KpiStats | null>(null);
   readonly meta = input.required<number>();
+  readonly forecast = input<ForecastVariableResult | null>(null);
+  readonly activeScenario = input<string>('real');
 
   private readonly tooltip = inject(TooltipService);
 
@@ -35,11 +39,16 @@ export class TrendDetailChartComponent {
     const allVals = [...vals];
     if (st?.q1 != null) allVals.push(st.q1);
     if (st?.q3 != null) allVals.push(st.q3);
+    if (st?.limite_inferior != null) allVals.push(st.limite_inferior);
+    if (st?.limite_superior != null) allVals.push(st.limite_superior);
     allVals.push(this.meta());
     const dMin = Math.min(...allVals) - 2;
     const dMax = Math.max(...allVals) + 2;
 
-    const xS = (i: number) => this.left + i * (plotW / Math.max(n - 1, 1));
+    const f = this.forecast();
+    const n_slots = n + (f ? 1 : 0);
+
+    const xS = (i: number) => this.left + i * (plotW / Math.max(n_slots - 1, 1));
     const yS = (v: number) => this.top + ((dMax - v) / (dMax - dMin)) * plotH;
 
     const pts = data.map((d, i) => ({ ...d, cx: xS(i), cy: yS(d.valor) }));
@@ -66,16 +75,50 @@ export class TrendDetailChartComponent {
         ? `M ${trendPts[0].cx} ${trendPts[0].cy} L ${trendPts[trendPts.length - 1].cx} ${trendPts[trendPts.length - 1].cy}`
         : '';
 
-    const refLines = [
-      { key: 'q1', val: st?.q1, label: 'Q1' },
-      { key: 'mediana', val: st?.mediana, label: 'Mediana' },
-      { key: 'q3', val: st?.q3, label: 'Q3' },
-      { key: 'meta', val: this.meta(), label: 'Meta' },
-    ]
-      .filter((r) => r.val != null)
-      .map((r) => ({ ...r, y: yS(r.val as number) }));
+    const metaRef = { key: 'meta', val: this.meta(), label: 'Meta', y: yS(this.meta()) };
 
-    return { pts, lineD, bandD, trendLineD, refLines, metaY: yS(this.meta()), dMin, dMax };
+    const medianY = st?.mediana != null ? yS(st.mediana) : null;
+
+    const iqrBox = (st?.q1 != null && st?.q3 != null)
+      ? {
+          x: this.left,
+          y: yS(st.q3),
+          width: plotW,
+          height: Math.abs(yS(st.q1) - yS(st.q3)),
+          yQ1: yS(st.q1),
+          yQ3: yS(st.q3),
+          yMin: st.limite_inferior != null ? yS(st.limite_inferior) : null,
+          yMax: st.limite_superior != null ? yS(st.limite_superior) : null,
+          labelQ1: st.q1,
+          labelQ3: st.q3,
+          labelMin: st.limite_inferior,
+          labelMax: st.limite_superior,
+        }
+      : null;
+
+    let forecastData = null;
+    let labels = data.map((d, i) => ({ x: xS(i), label: d.label }));
+
+    if (f) {
+      const fX = xS(n);
+      const fY = yS(f.punto_medio);
+      const yInf = yS(f.intervalo_inferior);
+      const ySup = yS(f.intervalo_superior);
+      forecastData = {
+        cx: fX,
+        cy: fY,
+        lineD: `M ${pts[n - 1].cx},${pts[n - 1].cy} L ${fX},${fY}`,
+        bandD: `M ${pts[n - 1].cx},${pts[n - 1].cy} L ${fX},${yInf} L ${fX},${ySup} Z`, // note yInf is usually higher y pixel value
+        label: 'Proyección 2031',
+        val: f.punto_medio,
+        inf: f.intervalo_inferior,
+        sup: f.intervalo_superior,
+        advertencia: f.advertencia
+      };
+      labels.push({ x: fX, label: '2031' });
+    }
+
+    return { pts, lineD, bandD, trendLineD, metaRef, medianY, iqrBox, metaY: yS(this.meta()), dMin, dMax, forecastData, labels };
   });
 
   readonly axisBottomY = this.h - this.bottom;
@@ -86,6 +129,20 @@ export class TrendDetailChartComponent {
     this.tooltip.show(
       event.currentTarget as Element,
       `<strong>${pt.label}</strong>: ${fmt(pt.valor, 1)}${outlier}`,
+    );
+  }
+
+  onForecastEnter(event: MouseEvent, fd: any): void {
+    const target = event.currentTarget as Element;
+    let adv = '';
+    if (fd.advertencia) {
+      adv = `<br><span class="t-status" style="color:var(--c-red); font-size:0.8rem">${fd.advertencia}</span>`;
+    }
+    this.tooltip.show(
+      target,
+      `<strong>Proyección 2031 (${this.activeScenario()})</strong><br>
+       Valor esperado: ${fmt(fd.val, 1)}<br>
+       <small>IC 90%: [${fmt(fd.inf, 1)} - ${fmt(fd.sup, 1)}]</small>${adv}`
     );
   }
 

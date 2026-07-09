@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { PuntoCapacitacion } from '../../models/dashboard.models';
 import { TooltipService } from '../../services/tooltip.service';
 import { fmt, prefersReducedMotion, statusForErrores } from '../../utils/format.util';
+import { ForecastVariableResult } from '../../services/forecast.service';
 
 interface ScatterPoint extends PuntoCapacitacion {
   cx: number;
@@ -18,6 +19,9 @@ interface ScatterPoint extends PuntoCapacitacion {
 export class ScatterChartComponent {
   readonly puntos = input.required<PuntoCapacitacion[]>();
   readonly meta_horas = input.required<number>();
+  readonly forecastHoras = input<ForecastVariableResult | null>(null);
+  readonly forecastErrores = input<ForecastVariableResult | null>(null);
+  readonly activeScenario = input<string>('real');
 
   private readonly tooltip = inject(TooltipService);
 
@@ -64,6 +68,40 @@ export class ScatterChartComponent {
     })) satisfies ScatterPoint[];
   });
 
+  readonly forecastPlot = computed(() => {
+    const data = this.puntos();
+    const fh = this.forecastHoras();
+    const fe = this.forecastErrores();
+    if (!data.length || !fh || !fe) return null;
+
+    const xVals = data.map((d) => d.horas_capacitacion);
+    const yVals = data.map((d) => d.tasa_errores);
+    const xMin = Math.min(...xVals) - 0.5;
+    const xMax = Math.max(...xVals, fh.intervalo_superior) + 0.5;
+    const yMin = 0;
+    const yMax = Math.max(...yVals, fe.intervalo_superior) + 0.3;
+    const plotW = this.w - this.left - this.right;
+    const plotH = this.h - this.top - this.bottom;
+
+    const xS = (v: number) => this.left + ((v - xMin) / (xMax - xMin)) * plotW;
+    const yS = (v: number) => this.h - this.bottom - ((v - yMin) / (yMax - yMin)) * plotH;
+
+    return {
+      cx: xS(fh.punto_medio),
+      cy: yS(fe.punto_medio),
+      xInf: xS(fh.intervalo_inferior),
+      xSup: xS(fh.intervalo_superior),
+      yInf: yS(fe.intervalo_inferior), // higher value physically on screen
+      ySup: yS(fe.intervalo_superior),
+      horas: fh.punto_medio,
+      errores: fe.punto_medio,
+      hInf: fh.intervalo_inferior,
+      hSup: fh.intervalo_superior,
+      eInf: fe.intervalo_inferior,
+      eSup: fe.intervalo_superior,
+    };
+  });
+
   readonly axisBottomY = this.h - this.bottom;
   readonly axisRightX = this.w - this.right;
   readonly axisTitleX = (this.left + this.w - this.right) / 2;
@@ -74,6 +112,16 @@ export class ScatterChartComponent {
     this.tooltip.show(
       target,
       `<strong>${pt.nombre_region}</strong><br>${pt.anio}-${mes} · ${fmt(pt.horas_capacitacion, 1)} h · ${fmt(pt.tasa_errores, 2)}% errores`,
+    );
+  }
+
+  onForecastEnter(event: MouseEvent, fd: any): void {
+    const target = event.currentTarget as Element;
+    this.tooltip.show(
+      target,
+      `<strong>Proyección 2031 (${this.activeScenario()})</strong><br>
+       Horas: ${fmt(fd.horas, 1)} <small>[${fmt(fd.hInf, 1)} - ${fmt(fd.hSup, 1)}]</small><br>
+       Errores: ${fmt(fd.errores, 2)}% <small>[${fmt(fd.eInf, 2)} - ${fmt(fd.eSup, 2)}]</small>`
     );
   }
 

@@ -1,7 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-export type Scenario = 'real' | 'positivista' | 'pesimista' | 'personalizado';
+import { ForecastService, Scenario } from '../../services/forecast.service';
 
 @Component({
   selector: 'app-scenario-selector',
@@ -10,7 +9,8 @@ export type Scenario = 'real' | 'positivista' | 'pesimista' | 'personalizado';
   templateUrl: './scenario-selector.component.html',
 })
 export class ScenarioSelectorComponent {
-  readonly activeScenario = signal<Scenario>('real');
+  readonly forecast = inject(ForecastService);
+  readonly activeScenario = this.forecast.activeScenario;
 
   readonly scenarios: { id: Scenario; label: string; icon: string }[] = [
     { id: 'real', label: 'Real', icon: '◉' },
@@ -20,6 +20,11 @@ export class ScenarioSelectorComponent {
   ];
 
   select(scenario: Scenario): void {
-    this.activeScenario.set(scenario);
+    if (scenario === 'personalizado') {
+      this.forecast.openParamsModal();
+    } else {
+      this.forecast.setScenario(scenario);
+    }
   }
 }
+

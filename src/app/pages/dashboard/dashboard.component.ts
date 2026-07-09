@@ -8,10 +8,13 @@ import { LineChartComponent } from '../../components/line-chart/line-chart.compo
 import { ScatterChartComponent } from '../../components/scatter-chart/scatter-chart.component';
 import { YearRangeSliderComponent, YearRange } from '../../components/year-range-slider/year-range-slider.component';
 import { ScenarioSelectorComponent } from '../../components/scenario-selector/scenario-selector.component';
+import { ForecastParamsModalComponent } from '../../components/forecast-params-modal/forecast-params-modal.component';
 import { DashboardData } from '../../models/dashboard.models';
 import { KpiModalId } from '../../models/modal.models';
 import { DashboardService } from '../../services/dashboard.service';
 import { ModalService } from '../../services/modal.service';
+import { ForecastService } from '../../services/forecast.service';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -25,15 +28,18 @@ import { ModalService } from '../../services/modal.service';
     KpiModalComponent,
     YearRangeSliderComponent,
     ScenarioSelectorComponent,
+    ForecastParamsModalComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent {
   private readonly dashboardService = inject(DashboardService);
   private readonly modalService = inject(ModalService);
+  readonly forecast = inject(ForecastService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly data = signal<DashboardData | null>(null);
+  readonly forecastData = this.forecast.forecastData;
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly dimmed = signal(false);
@@ -55,6 +61,7 @@ export class DashboardComponent {
   private readonly BLUR_MAX_PX = 10;
 
   readonly isDark = signal(false);
+  readonly toYear = signal(2030);
 
   constructor() {
     this.loadData(2026, 2030);
@@ -125,6 +132,7 @@ export class DashboardComponent {
   }
 
   onYearRangeChange(range: YearRange): void {
+    this.toYear.set(range.to);
     if (range.from === this.currentRange.from && range.to === this.currentRange.to) {
       this.pendingRange = null;
       if (this.debounceId) {

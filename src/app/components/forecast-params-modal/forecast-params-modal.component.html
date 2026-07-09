@@ -1,0 +1,39 @@
+<div
+  class="modal-overlay"
+  [class.visible]="visible()"
+  (click)="onOverlayClick($event)"
+  (keydown.escape)="close()"
+>
+  <div class="modal modal-wide modal--forecast-params" role="dialog" aria-modal="true">
+    <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+    <h2 class="modal-title">Parámetros Personalizados (Proyección 2031)</h2>
+    <p class="modal-sub">
+      Ajusta la tasa de cambio anual esperada y el nivel de confianza de esa proyección para cada métrica.
+    </p>
+
+    <div class="forecast-params-grid">
+      <div class="fp-header">Métrica</div>
+      <div class="fp-header">Tasa de Cambio (pendiente)</div>
+      <div class="fp-header">Nivel de Confianza</div>
+
+      @for (row of rows(); track row.key) {
+        <div class="fp-cell fp-label">{{ row.label }}</div>
+        <div class="fp-cell">
+          <input type="number" step="0.1" [(ngModel)]="row.tasa_cambio" class="fp-input" />
+        </div>
+        <div class="fp-cell">
+          <select [(ngModel)]="row.confianza" class="fp-select">
+            <option value="baja">Baja (Datos mandan)</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta (Prior manda)</option>
+          </select>
+        </div>
+      }
+    </div>
+
+    <div class="fp-actions">
+      <button class="fp-btn-cancel" (click)="close()">Cancelar</button>
+      <button class="fp-btn-apply" (click)="apply()">Aplicar Proyección</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+@if (chart(); as c) {
+  <div class="gauss-section">
+    <svg class="gauss-svg" [attr.viewBox]="'0 0 560 160'" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="gaussIqrGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--ink)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="var(--ink)" stop-opacity="0.04" />
+        </linearGradient>
+        <filter id="gaussBlur">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" />
+        </filter>
+      </defs>
+
+      <line class="axis-line" [attr.x1]="16" [attr.y1]="axisBottomY" [attr.x2]="axisRightX" [attr.y2]="axisBottomY" />
+
+      @if (c.iqrD) {
+        <path [attr.d]="c.iqrD" fill="url(#gaussIqrGrad)" class="gauss-iqr-area" />
+      }
+
+      @if (c.curveD) {
+        <path [attr.d]="c.curveD" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round" class="gauss-curve" />
+      }
+
+      <line
+        [attr.x1]="c.medianX"
+        [attr.y1]="16"
+        [attr.x2]="c.medianX"
+        [attr.y2]="c.axisY"
+        stroke="var(--gray-700)"
+        stroke-width="1.8"
+        stroke-dasharray="5 3"
+        class="gauss-median"
+      />
+      <text class="meta-label" [attr.x]="c.medianX + 4" y="26" text-anchor="start">Mediana</text>
+
+      @for (pt of c.rugPts; track pt.cx + '-' + pt.v) {
+        <circle
+          class="gauss-rug"
+          [attr.cx]="pt.cx"
+          [attr.cy]="c.axisY + 8"
+          r="4"
+          [attr.fill]="pt.isOutlier ? 'var(--c-red)' : 'var(--gray-500)'"
+          [attr.fill-opacity]="pt.isOutlier ? 0.85 : 0.55"
+          [attr.stroke]="pt.isOutlier ? 'var(--c-red)' : 'var(--gray-300)'"
+          stroke-width="0.8"
+          (mouseenter)="onRugEnter($event, pt)"
+          (mouseleave)="onRugLeave()"
+        />
+      }
+    </svg>
+  </div>
+}

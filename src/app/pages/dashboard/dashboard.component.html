@@ -26,8 +26,8 @@
     </button>
   </header>
 
-  <section class="kpi-grid">
-    <div class="kpi-card filter-card" [class.controls-disabled]="loading()">
+  <section class="kpi-grid" [class.forecast-computing]="forecast.loading()">
+    <div class="kpi-card filter-card" [class.controls-disabled]="loading() || forecast.loading()">
       <app-year-range-slider (rangeChange)="onYearRangeChange($event)" />
       <div class="filter-divider"></div>
       <app-scenario-selector />
@@ -39,12 +39,15 @@
       [index]="i"
       [blurPx]="cardBlurs()[i]"
       [blurred]="blurred()"
+      [yearLabel]="toYear()"
+      [forecast]="forecastData()?.[card.id] ?? null"
+      [activeScenario]="forecast.activeScenario()"
       (cardClick)="openCardModal(card.id)"
     />
     }
   </section>
 
-  <section class="charts-grid">
+  <section class="charts-grid" [class.forecast-computing]="forecast.loading()">
     <div
       class="panel panel-donut"
       [style.filter]="blurred() ? 'blur(' + panelBlurs().donut + 'px)' : 'none'"
@@ -76,12 +79,18 @@
         </p>
       </div>
       <div (click)="$event.stopPropagation()">
-        <app-scatter-chart [puntos]="d.capacitacion_errores.puntos" [meta_horas]="d.capacitacion_errores.meta_horas" />
+        <app-scatter-chart 
+          [puntos]="d.capacitacion_errores.puntos" 
+          [meta_horas]="d.capacitacion_errores.meta_horas" 
+          [forecastHoras]="forecastData()?.horas_capacitacion ?? null" 
+          [forecastErrores]="forecastData()?.tasa_errores ?? null" 
+          [activeScenario]="forecast.activeScenario()"
+        />
       </div>
     </div>
   </section>
 
-  <section class="charts-grid full">
+  <section class="charts-grid full" [class.forecast-computing]="forecast.loading()">
     <div
       class="panel panel-line panel-clickable"
       tabindex="0"
@@ -98,7 +107,12 @@
         </p>
       </div>
       <div (click)="$event.stopPropagation()">
-        <app-line-chart [serie]="d.satisfaccion.serie" [meta]="d.satisfaccion.meta" />
+        <app-line-chart 
+          [serie]="d.satisfaccion.serie" 
+          [meta]="d.satisfaccion.meta" 
+          [forecast]="forecastData()?.satisfaccion ?? null" 
+          [activeScenario]="forecast.activeScenario()"
+        />
       </div>
     </div>
   </section>
@@ -118,5 +132,13 @@
   </span>
 </div>
 
+<div class="forecast-load-overlay" [class.visible]="forecast.loading()">
+  <span class="loading-spinner">
+    <span class="spinner-ring"></span>
+    Calculando proyección bayesiana...
+  </span>
+</div>
+
 <app-chart-tooltip />
 <app-kpi-modal />
+<app-forecast-params-modal />

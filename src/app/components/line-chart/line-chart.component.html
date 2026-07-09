@@ -30,6 +30,18 @@
 
   <path #linePath class="line-path" [attr.d]="chart().lineD" />
 
+  @if (chart().forecastData; as fd) {
+    <path class="forecast-band" [attr.d]="fd.bandD" />
+    <path class="forecast-line" [attr.d]="fd.lineD" />
+    <circle
+      class="forecast-point"
+      [attr.cx]="fd.cx"
+      [attr.cy]="fd.cy"
+      (mouseenter)="onForecastEnter($event, fd)"
+      (mouseleave)="onMarkerLeave()"
+    />
+  }
+
   @for (lbl of chart().labels; track lbl.anio) {
     <text class="month-label" [attr.x]="lbl.x" y="306" text-anchor="middle">{{ lbl.anio }}</text>
   }

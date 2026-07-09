@@ -8,7 +8,6 @@
         [class.sce-btn--active]="activeScenario() === s.id"
         [attr.data-scenario]="s.id"
         (click)="select(s.id)"
-        [title]="s.label + ' (próximamente)'"
       >
         <span class="sce-icon">{{ s.icon }}</span>
         <span class="sce-text">{{ s.label }}</span>

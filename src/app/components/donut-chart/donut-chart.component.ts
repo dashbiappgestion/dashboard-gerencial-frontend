@@ -28,8 +28,8 @@ export class DonutChartComponent {
   readonly categorias = input.required<CategoriaDesarrollo[]>();
   readonly categoryClick = output<string>();
 
-  readonly centerValue = signal('100%');
-  readonly centerLabel = signal('5 categorías');
+  readonly centerValue = signal('');
+  readonly centerSub = signal('5 categorías');
   readonly segments = signal<DonutSegment[]>([]);
   readonly hoveredIndex = signal<number | null>(null);
 
@@ -62,7 +62,8 @@ export class DonutChartComponent {
       return seg;
     });
     this.segments.set(segs);
-    this.centerLabel.set(segs.length + ' categorías');
+    this.centerValue.set('');
+    this.centerSub.set(segs.length + ' categorías');
   }
 
   private animateSegments(attempt = 0): void {
@@ -83,14 +84,14 @@ export class DonutChartComponent {
 
   onSegmentEnter(index: number): void {
     const seg = this.segments()[index];
-    this.centerValue.set(seg.promedio_meses + ' m');
-    this.centerLabel.set(seg.categoria);
+    this.centerValue.set(seg.promedio_meses + ' m · ' + seg.pct + '%');
+    this.centerSub.set(seg.categoria);
     this.hoveredIndex.set(index);
   }
 
   onGroupLeave(): void {
-    this.centerValue.set('100%');
-    this.centerLabel.set(this.segments().length + ' categorías');
+    this.centerValue.set('');
+    this.centerSub.set(this.segments().length + ' categorías');
     this.hoveredIndex.set(null);
   }
 
