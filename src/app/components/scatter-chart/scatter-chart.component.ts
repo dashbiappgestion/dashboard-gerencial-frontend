@@ -102,8 +102,54 @@ export class ScatterChartComponent {
     };
   });
 
+readonly axisTicks = computed(() => {
+    const data = this.puntos();
+    if (!data.length) {
+      return { xTicks: [] as { val: number; pos: number }[], yTicks: [] as { val: number; pos: number }[] };
+    }
+
+    const xVals = data.map((d) => d.horas_capacitacion);
+    const yVals = data.map((d) => d.tasa_errores);
+    const xMin = Math.min(...xVals) - 0.5;
+    const xMax = Math.max(...xVals) + 0.5;
+    const yMin = 0;
+    const yMax = Math.max(...yVals) + 0.3;
+    const plotW = this.w - this.left - this.right;
+    const plotH = this.h - this.top - this.bottom;
+
+    const xS = (v: number) => this.left + ((v - xMin) / (xMax - xMin)) * plotW;
+    const yS = (v: number) => this.h - this.bottom - ((v - yMin) / (yMax - yMin)) * plotH;
+
+    return {
+      xTicks: this.buildTicks(xMin, xMax, xS),
+      yTicks: this.buildTicks(yMin, yMax, yS),
+    };
+  });
+
+  private buildTicks(min: number, max: number, scale: (v: number) => number): { val: number; pos: number }[] {
+    const targetCount = 5;
+    const rawStep = (max - min) / targetCount || 1;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const candidates = [1, 2, 2.5, 5, 10];
+    let step = candidates[candidates.length - 1] * mag;
+    for (const c of candidates) {
+      if (rawStep <= c * mag) {
+        step = c * mag;
+        break;
+      }
+    }
+    const niceMin = Math.ceil(min / step) * step;
+    const ticks: { val: number; pos: number }[] = [];
+    for (let v = niceMin; v <= max + step * 0.001; v += step) {
+      ticks.push({ val: Math.round(v * 100) / 100, pos: scale(v) });
+    }
+    return ticks;
+  }
+
   readonly axisBottomY = this.h - this.bottom;
+
   readonly axisRightX = this.w - this.right;
+
   readonly axisTitleX = (this.left + this.w - this.right) / 2;
 
   onEnter(event: MouseEvent, pt: ScatterPoint): void {

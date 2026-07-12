@@ -85,8 +85,30 @@ export class GaussCurveChartComponent {
       return { v, cx, isOutlier };
     });
 
-    return { curveD, iqrD, medianX, rugPts, axisY, yS, plotW, mu, sigma };
+    const xTicks = this.buildXTicks(xLo, xHi, xS);
+
+    return { curveD, iqrD, medianX, rugPts, axisY, yS, plotW, mu, sigma, xTicks };
   });
+
+  private buildXTicks(min: number, max: number, xS: (v: number) => number): { val: number; x: number }[] {
+    const targetCount = 5;
+    const rawStep = (max - min) / targetCount || 1;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const candidates = [1, 2, 2.5, 5, 10];
+    let step = candidates[candidates.length - 1] * mag;
+    for (const c of candidates) {
+      if (rawStep <= c * mag) {
+        step = c * mag;
+        break;
+      }
+    }
+    const niceMin = Math.ceil(min / step) * step;
+    const ticks: { val: number; x: number }[] = [];
+    for (let v = niceMin; v <= max + step * 0.001; v += step) {
+      ticks.push({ val: Math.round(v * 100) / 100, x: xS(v) });
+    }
+    return ticks;
+  }
 
   readonly axisRightX = this.w - this.padR;
   readonly axisBottomY = this.h - this.padB;

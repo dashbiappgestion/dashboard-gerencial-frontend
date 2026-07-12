@@ -17,6 +17,11 @@ export class ModalService {
   readonly filters = signal<ModalFilters>({});
 
   private currentKpiId: KpiModalId | null = null;
+  private yearRange: { anio_inicio: number; anio_fin: number } | null = null;
+
+  setYearRange(anio_inicio: number, anio_fin: number): void {
+    this.yearRange = { anio_inicio, anio_fin };
+  }
 
   open(kpiId: KpiModalId, initial: Partial<ModalFilters> = {}): void {
     this.currentKpiId = kpiId;
@@ -49,6 +54,11 @@ export class ModalService {
     if (f.trimestre != null) params = params.set('trimestre', f.trimestre);
     if (f.mes != null) params = params.set('mes', f.mes);
     if (f.categoria) params = params.set('categoria', f.categoria);
+
+    if (this.currentKpiId === 'desarrollo' && this.yearRange) {
+      params = params.set('anio_inicio', this.yearRange.anio_inicio);
+      params = params.set('anio_fin', this.yearRange.anio_fin);
+    }
 
     this.http
       .get<KpiModalData>(`${this.baseUrl}/kpis/${this.currentKpiId}/modal`, { params })

@@ -13,6 +13,11 @@
 
       <line class="axis-line" [attr.x1]="16" [attr.y1]="axisBottomY" [attr.x2]="axisRightX" [attr.y2]="axisBottomY" />
 
+      @for (tick of c.xTicks; track tick.val) {
+        <line class="grid-line" [attr.x1]="tick.x" [attr.y1]="16" [attr.x2]="tick.x" [attr.y2]="axisBottomY" />
+        <text class="y-tick-label" [attr.x]="tick.x" [attr.y]="axisBottomY + 14" text-anchor="middle">{{ tick.val }}</text>
+      }
+
       @if (c.iqrD) {
         <path [attr.d]="c.iqrD" fill="url(#gaussIqrGrad)" class="gauss-iqr-area" />
       }

@@ -1,5 +1,4 @@
 import { Component, computed, inject, input } from '@angular/core';
-
 import { DispersionModalData } from '../../models/modal.models';
 import { TooltipService } from '../../services/tooltip.service';
 import { fmt } from '../../utils/format.util';
@@ -16,10 +15,10 @@ export class ScatterDetailChartComponent {
 
   private readonly w = 640;
   private readonly h = 300;
-  private readonly left = 52;
-  private readonly right = 20;
+  private readonly left = 56;
+  private readonly right = 24;
   private readonly top = 20;
-  private readonly bottom = 48;
+  private readonly bottom = 56;
 
   readonly chart = computed(() => {
     const d = this.modalData();
@@ -61,13 +60,42 @@ export class ScatterDetailChartComponent {
     }
 
     const metaX = xS(d.meta);
+    const xTicks = this.buildTicks(xMin, xMax, xS, 'x');
+    const yTicks = this.buildTicks(yMin, yMax, yS, 'y');
 
-    return { points, regLine, bandD, r: d.stats.r_pearson, metaX };
+    return { points, regLine, bandD, r: d.stats.r_pearson, metaX, xTicks, yTicks };
   });
 
   readonly axisBottomY = this.h - this.bottom;
   readonly axisRightX = this.w - this.right;
+  readonly axisLeftX = this.left;
+  readonly axisTopY = this.top;
   readonly axisTitleX = (this.left + this.w - this.right) / 2;
+
+  private buildTicks(
+    min: number,
+    max: number,
+    scale: (v: number) => number,
+    axis: 'x' | 'y',
+  ): { val: number; pos: number }[] {
+    const targetCount = 5;
+    const rawStep = (max - min) / targetCount || 1;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const candidates = [1, 2, 2.5, 5, 10];
+    let step = candidates[candidates.length - 1] * mag;
+    for (const c of candidates) {
+      if (rawStep <= c * mag) {
+        step = c * mag;
+        break;
+      }
+    }
+    const niceMin = Math.ceil(min / step) * step;
+    const ticks: { val: number; pos: number }[] = [];
+    for (let v = niceMin; v <= max + step * 0.001; v += step) {
+      ticks.push({ val: Math.round(v * 100) / 100, pos: scale(v) });
+    }
+    return ticks;
+  }
 
   onEnter(event: MouseEvent, pt: { nombre_region: string; anio: number; mes: number; horas_capacitacion: number; tasa_errores: number; outlier: boolean }): void {
     const mes = String(pt.mes).padStart(2, '0');

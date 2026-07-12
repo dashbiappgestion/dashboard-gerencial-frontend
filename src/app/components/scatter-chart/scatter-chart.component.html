@@ -1,6 +1,16 @@
 <svg class="scatter-svg scatter-plot" viewBox="0 0 480 300">
   <line class="axis-line" [attr.x1]="48" [attr.y1]="axisBottomY" [attr.x2]="axisRightX" [attr.y2]="axisBottomY" />
   <line class="axis-line" [attr.x1]="48" [attr.y1]="16" [attr.x2]="48" [attr.y2]="axisBottomY" />
+
+  @for (tick of axisTicks().yTicks; track tick.val) {
+    <line class="grid-line" [attr.x1]="48" [attr.y1]="tick.pos" [attr.x2]="axisRightX" [attr.y2]="tick.pos" />
+    <text class="y-tick-label" x="44" [attr.y]="tick.pos + 3" text-anchor="end">{{ tick.val }}</text>
+  }
+
+  @for (tick of axisTicks().xTicks; track tick.val) {
+    <text class="axis-label" [attr.x]="tick.pos" [attr.y]="axisBottomY + 12" text-anchor="middle">{{ tick.val }}</text>
+  }
+
   <text class="axis-title" [attr.x]="axisTitleX" y="296" text-anchor="middle">
     Horas de capacitación / empleado
   </text>

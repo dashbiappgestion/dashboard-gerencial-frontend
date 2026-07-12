@@ -649,6 +649,13 @@ app-donut-chart {
   height: 100%;
 }
 
+app-trend-detail-chart,
+app-scatter-detail-chart,
+app-gauss-curve-chart {
+  display: block;
+  width: 100%;
+}
+
 .donut-wrap {
   position: relative;
   max-width: 220px;
@@ -792,6 +799,24 @@ app-donut-chart {
   font-style: italic;
   font-size: 9.5px;
   fill: var(--gray-600);
+}
+
+.axis-label {
+  font-family: "Figtree", sans-serif;
+  font-size: 10px;
+  fill: var(--gray-600);
+}
+
+.y-tick-label {
+  font-family: "Figtree", sans-serif;
+  font-size: 10px;
+  fill: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.grid-line {
+  stroke: var(--gray-200);
+  stroke-width: 1;
 }
 
 .scatter-pt .dot {
@@ -1055,10 +1080,67 @@ app-donut-chart {
 .modal-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 18px;
-  margin-bottom: 22px;
-  padding-bottom: 18px;
+  align-items: flex-end;
+  gap: 10px 16px;
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.modal-header-row {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-right: 40px;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
   border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-header-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.modal-header-text .modal-title {
+  margin: 0 0 4px;
+}
+
+.modal-header-text .modal-sub {
+  margin: 0;
+}
+
+.modal-body-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  gap: 24px;
+}
+
+.modal-chart-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.modal-info-col {
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.modal-info-col .modal-stats-line {
+  margin: 0 0 14px;
+}
+
+.modal-info-col .modal-warning {
+  margin-top: 0;
 }
 
 .filter-field {

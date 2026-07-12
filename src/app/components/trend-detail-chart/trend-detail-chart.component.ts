@@ -1,10 +1,16 @@
-import { Component, computed, inject, input } from '@angular/core';
-
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { KpiStats, TrendPoint } from '../../models/modal.models';
 import { TooltipService } from '../../services/tooltip.service';
 import { catmullRom2bezier, fmt } from '../../utils/format.util';
 import { ForecastVariableResult } from '../../services/forecast.service';
-
 
 @Component({
   selector: 'app-trend-detail-chart',
@@ -19,13 +25,32 @@ export class TrendDetailChartComponent {
   readonly activeScenario = input<string>('real');
 
   private readonly tooltip = inject(TooltipService);
+  private readonly hostRef = inject(ElementRef<HTMLElement>);
 
-  private readonly w = 640;
-  private readonly h = 280;
-  private readonly left = 48;
+  private readonly size = signal({ w: 640, h: 280 });
+  readonly viewW = computed(() => this.size().w);
+  readonly viewH = computed(() => this.size().h);
+
+  private readonly left = 60;
   private readonly right = 24;
   private readonly top = 24;
-  private readonly bottom = 44;
+  private readonly bottom = 70;
+
+  readonly axisLeftX = this.left;
+  readonly axisTopY = this.top;
+  readonly axisBottomY = computed(() => this.viewH() - this.bottom);
+  readonly axisRightX = computed(() => this.viewW() - this.right);
+
+  constructor() {
+    const ro = new ResizeObserver((entries) => {
+      const box = entries[0]?.contentRect;
+      if (box && box.width > 4 && box.height > 4) {
+        this.size.set({ w: box.width, h: box.height });
+      }
+    });
+    ro.observe(this.hostRef.nativeElement);
+    inject(DestroyRef).onDestroy(() => ro.disconnect());
+  }
 
   readonly chart = computed(() => {
     const data = this.serie();
@@ -33,8 +58,8 @@ export class TrendDetailChartComponent {
     const n = data.length;
     if (!n) return null;
 
-    const plotW = this.w - this.left - this.right;
-    const plotH = this.h - this.top - this.bottom;
+    const plotW = this.viewW() - this.left - this.right;
+    const plotH = this.viewH() - this.top - this.bottom;
     const vals = data.map((d) => d.valor);
     const allVals = [...vals];
     if (st?.q1 != null) allVals.push(st.q1);
@@ -76,7 +101,6 @@ export class TrendDetailChartComponent {
         : '';
 
     const metaRef = { key: 'meta', val: this.meta(), label: 'Meta', y: yS(this.meta()) };
-
     const medianY = st?.mediana != null ? yS(st.mediana) : null;
 
     const iqrBox = (st?.q1 != null && st?.q3 != null)
@@ -108,21 +132,40 @@ export class TrendDetailChartComponent {
         cx: fX,
         cy: fY,
         lineD: `M ${pts[n - 1].cx},${pts[n - 1].cy} L ${fX},${fY}`,
-        bandD: `M ${pts[n - 1].cx},${pts[n - 1].cy} L ${fX},${yInf} L ${fX},${ySup} Z`, // note yInf is usually higher y pixel value
+        bandD: `M ${pts[n - 1].cx},${pts[n - 1].cy} L ${fX},${yInf} L ${fX},${ySup} Z`,
         label: 'Proyección 2031',
         val: f.punto_medio,
         inf: f.intervalo_inferior,
         sup: f.intervalo_superior,
-        advertencia: f.advertencia
+        advertencia: f.advertencia,
       };
       labels.push({ x: fX, label: '2031' });
     }
 
-    return { pts, lineD, bandD, trendLineD, metaRef, medianY, iqrBox, metaY: yS(this.meta()), dMin, dMax, forecastData, labels };
+    const yTicks = this.buildYTicks(dMin, dMax, yS);
+
+    return { pts, lineD, bandD, trendLineD, metaRef, medianY, iqrBox, metaY: yS(this.meta()), dMin, dMax, forecastData, labels, yTicks };
   });
 
-  readonly axisBottomY = this.h - this.bottom;
-  readonly axisRightX = this.w - this.right;
+  private buildYTicks(min: number, max: number, yS: (v: number) => number): { val: number; y: number }[] {
+    const targetCount = 5;
+    const rawStep = (max - min) / targetCount || 1;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const candidates = [1, 2, 2.5, 5, 10];
+    let step = candidates[candidates.length - 1] * mag;
+    for (const c of candidates) {
+      if (rawStep <= c * mag) {
+        step = c * mag;
+        break;
+      }
+    }
+    const niceMin = Math.ceil(min / step) * step;
+    const ticks: { val: number; y: number }[] = [];
+    for (let v = niceMin; v <= max + step * 0.001; v += step) {
+      ticks.push({ val: Math.round(v * 100) / 100, y: yS(v) });
+    }
+    return ticks;
+  }
 
   onEnter(event: MouseEvent, pt: TrendPoint & { cx: number; cy: number }): void {
     const outlier = pt.outlier ? '<br><span class="t-status">Valor atípico</span>' : '';

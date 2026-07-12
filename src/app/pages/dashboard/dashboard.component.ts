@@ -64,6 +64,7 @@ export class DashboardComponent {
   readonly toYear = signal(2030);
 
   constructor() {
+    this.modalService.setYearRange(this.currentRange.from, this.currentRange.to);
     this.loadData(2026, 2030);
   }
 
@@ -133,6 +134,7 @@ export class DashboardComponent {
 
   onYearRangeChange(range: YearRange): void {
     this.toYear.set(range.to);
+    this.modalService.setYearRange(range.from, range.to);
     if (range.from === this.currentRange.from && range.to === this.currentRange.to) {
       this.pendingRange = null;
       if (this.debounceId) {

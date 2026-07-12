@@ -1,150 +1,140 @@
-<div
-
-  class="modal-overlay"
-
-  [class.visible]="modal.visible()"
-
-  (click)="onOverlayClick($event)"
-
-  (keydown.escape)="close()"
-
->
-
+<div class="modal-overlay" [class.visible]="modal.visible()" (click)="onOverlayClick($event)"
+  (keydown.escape)="close()">
   <div class="modal modal-wide" role="dialog" aria-modal="true">
 
     @if (modal.loading() && !modal.data()) {
 
-      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+    <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
 
-      <div class="loading loading--modal-center">
-        <span class="loading-spinner">
-          <span class="spinner-ring"></span>
-          Cargando datos...
-        </span>
-      </div>
+    <div class="loading loading--modal-center">
+      <span class="loading-spinner">
+        <span class="spinner-ring"></span>
+        Cargando datos...
+      </span>
+    </div>
 
     } @else if (modal.error() && !modal.data()) {
 
-      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+    <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
 
-      <div class="error-msg">{{ modal.error() }}</div>
+    <div class="error-msg">{{ modal.error() }}</div>
 
     } @else if (modal.data(); as d) {
 
-      <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
+    <button class="modal-close" type="button" aria-label="Cerrar" (click)="close()">×</button>
 
-      <h2 class="modal-title">{{ d.config.titulo }}</h2>
-
-      <p class="modal-sub">Detalle histórico con banda de margen de error, cuartiles y tendencia</p>
-
-
+    <div class="modal-header-row">
+      <div class="modal-header-text">
+        <h2 class="modal-title">{{ d.config.titulo }}</h2>
+        <p class="modal-sub">Detalle histórico con banda de margen de error, cuartiles y tendencia</p>
+      </div>
 
       <div class="modal-filters">
-
         @if (d.config.region) {
-          <label class="filter-field">
-            <span>Región</span>
-            <select (change)="onRegionChange($event)">
-              <option value="">Todas</option>
-              @for (r of d.filtros.regiones; track r) {
-                <option [value]="r" [selected]="modal.filters().region === r">{{ r }}</option>
-              }
-            </select>
-          </label>
+        <label class="filter-field">
+          <span>Región</span>
+          <select (change)="onRegionChange($event)">
+            <option value="">Todas</option>
+            @for (r of d.filtros.regiones; track r) {
+            <option [value]="r" [selected]="modal.filters().region === r">{{ r }}</option>
+            }
+          </select>
+        </label>
         } @else if (d.config.region_msg) {
-          <p class="filter-disabled">{{ d.config.region_msg }}</p>
+        <p class="filter-disabled">{{ d.config.region_msg }}</p>
         }
 
         @if (isProductos(d)) {
-          <label class="filter-field">
-            <span>Categoría</span>
-            <select (change)="onCategoriaChange($event)">
-              @for (c of d.categorias; track c) {
-                <option [value]="c" [selected]="d.categoria === c">{{ c }}</option>
-              }
-            </select>
-          </label>
+        <label class="filter-field">
+          <span>Categoría</span>
+          <select (change)="onCategoriaChange($event)">
+            @for (c of d.categorias; track c) {
+            <option [value]="c" [selected]="d.categoria === c">{{ c }}</option>
+            }
+          </select>
+        </label>
+        }
+      </div>
+    </div>
+
+    @if (modal.loading()) {
+
+    <div class="loading">Actualizando…</div>
+
+    } @else if (modal.error()) {
+
+    <div class="error-msg">{{ modal.error() }}</div>
+
+    } @else {
+
+    <div class="modal-body-grid">
+
+      <div class="modal-chart-col">
+
+        @if (isTrend(d)) {
+
+        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta" />
+
+        } @else if (isDispersion(d)) {
+
+        <app-scatter-detail-chart [modalData]="d" />
+
+        } @else if (isProductos(d)) {
+
+        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta"
+          [forecast]="forecastService.forecastData()?.tiempo_desarrollo?.[d.categoria] ?? null"
+          [activeScenario]="forecastService.activeScenario()" />
+
+        }
+
+        @if (isGaussVisible(d)) {
+        @if (isDispersion(d)) {
+        <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Tasa de error %" />
+        } @else if (isProductos(d)) {
+        <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Meses" />
+        } @else {
+        <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Índice" />
+        }
         }
 
       </div>
 
+      <div class="modal-info-col">
 
-
-      @if (modal.loading()) {
-
-        <div class="loading">Actualizando…</div>
-
-      } @else if (modal.error()) {
-
-        <div class="error-msg">{{ modal.error() }}</div>
-
-      } @else if (isTrend(d)) {
-
-        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta" />
-
-        @if (d.stats) {
-          <p class="modal-stats-line">
-            n = {{ d.stats.n_periodos ?? d.serie.length }}
-            @if (d.stats.q1 != null) { · Q1 <strong>{{ d.stats.q1 }}</strong> }
-            @if (d.stats.mediana != null) { · Mediana <strong>{{ d.stats.mediana }}</strong> }
-            @if (d.stats.q3 != null) { · Q3 <strong>{{ d.stats.q3 }}</strong> }
-            · Outliers <strong>{{ outlierCount(d.serie) }}</strong>
-          </p>
+        @if (isTrend(d) && d.stats) {
+        <p class="modal-stats-line">
+          n = {{ d.stats.n_periodos ?? d.serie.length }}
+          @if (d.stats.q1 != null) { · Q1 <strong>{{ d.stats.q1 }}</strong> }
+          @if (d.stats.mediana != null) { · Mediana <strong>{{ d.stats.mediana }}</strong> }
+          @if (d.stats.q3 != null) { · Q3 <strong>{{ d.stats.q3 }}</strong> }
+          · Outliers <strong>{{ outlierCount(d.serie) }}</strong>
+        </p>
+        } @else if (isProductos(d) && d.stats) {
+        <p class="modal-stats-line">
+          Q1 {{ d.stats.q1 }} · Mediana {{ d.stats.mediana }} · Q3 {{ d.stats.q3 }} meses
+        </p>
         }
 
-        @if (isGaussVisible(d)) {
-          <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Índice" />
-        }
-
-      } @else if (isDispersion(d)) {
-
-        <app-scatter-detail-chart [modalData]="d" />
-
-        @if (isGaussVisible(d)) {
-          <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Tasa de error %" />
-        }
-
-      } @else if (isProductos(d)) {
-
-        <app-trend-detail-chart 
-          [serie]="d.serie" 
-          [stats]="d.stats" 
-          [meta]="d.meta" 
-          [forecast]="forecastService.forecastData()?.tiempo_desarrollo?.[d.categoria] ?? null"
-          [activeScenario]="forecastService.activeScenario()"
-        />
-
-        @if (d.stats) {
-
-          <p class="modal-stats-line">
-
-            Q1 {{ d.stats.q1 }} · Mediana {{ d.stats.mediana }} · Q3 {{ d.stats.q3 }} meses
-
-          </p>
-
-        }
-
-        @if (isGaussVisible(d)) {
-          <app-gauss-curve-chart [valores]="getValores(d)" [stats]="d.stats" label="Meses" />
-        }
-
-      }
-
-      @if (d.stats && getIndicatorsList(d.stats).length > 0) {
+        @if (d.stats && getIndicatorsList(d.stats).length > 0) {
         <div class="modal-warning">
-          <strong>Advertencia:</strong> Estos valores son de la Estación <strong>{{ currentSeason }}</strong> - que pueden cambiar en la siguiente estación. Asimismo, estos datos presentan:
+          <strong>Advertencia:</strong> Estos valores son de la Estación <strong>{{ currentSeason }}</strong> - que
+          pueden cambiar en la siguiente estación. Asimismo, estos datos presentan:
           <ul>
             @for (ind of getIndicatorsList(d.stats); track ind) {
-              <li>{{ ind }}</li>
+            <li>{{ ind }}</li>
             }
           </ul>
           Siguiendo las condiciones actuales de crecimiento.
         </div>
-      }
+        }
+
+      </div>
+
+    </div>
+
+    }
 
     }
 
   </div>
-
 </div>
-

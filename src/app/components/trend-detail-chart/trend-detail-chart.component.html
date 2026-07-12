@@ -1,5 +1,5 @@
 @if (chart(); as c) {
-  <svg class="line-svg" viewBox="0 0 640 280">
+  <svg class="line-svg" [attr.viewBox]="'0 0 ' + viewW() + ' ' + viewH()">
     <defs>
       <linearGradient id="bandGradient" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#1c1a17" stop-opacity="0.12" />
@@ -7,8 +7,13 @@
       </linearGradient>
     </defs>
 
-    <line class="axis-line" [attr.x1]="48" [attr.y1]="axisBottomY" [attr.x2]="axisRightX" [attr.y2]="axisBottomY" />
-    <line class="axis-line" [attr.x1]="48" [attr.y1]="24" [attr.x2]="48" [attr.y2]="axisBottomY" />
+    <line class="axis-line" [attr.x1]="axisLeftX" [attr.y1]="axisBottomY()" [attr.x2]="axisRightX()" [attr.y2]="axisBottomY()" />
+    <line class="axis-line" [attr.x1]="axisLeftX" [attr.y1]="axisTopY" [attr.x2]="axisLeftX" [attr.y2]="axisBottomY()" />
+
+    @for (tick of c.yTicks; track tick.val) {
+      <line class="grid-line" [attr.x1]="axisLeftX" [attr.y1]="tick.y" [attr.x2]="axisRightX()" [attr.y2]="tick.y" />
+      <text class="y-tick-label" [attr.x]="axisLeftX - 8" [attr.y]="tick.y + 3" text-anchor="end">{{ tick.val }}</text>
+    }
 
     @if (c.bandD) {
       <path [attr.d]="c.bandD" fill="url(#bandGradient)" />
@@ -45,8 +50,8 @@
         rx="3"
       />
 
-      <text class="meta-label" [attr.x]="axisRightX" [attr.y]="box.yQ3 - 4" text-anchor="end">Q3 {{ box.labelQ3 }}</text>
-      <text class="meta-label" [attr.x]="axisRightX" [attr.y]="box.yQ1 + 12" text-anchor="end">Q1 {{ box.labelQ1 }}</text>
+      <text class="meta-label" [attr.x]="axisRightX()" [attr.y]="box.yQ3 - 4" text-anchor="end">Q3 {{ box.labelQ3 }}</text>
+      <text class="meta-label" [attr.x]="axisRightX()" [attr.y]="box.yQ1 + 12" text-anchor="end">Q1 {{ box.labelQ1 }}</text>
 
       @if (box.yMax != null) {
         <line
@@ -71,23 +76,23 @@
 
     @if (c.medianY != null) {
       <line
-        [attr.x1]="48"
+        [attr.x1]="axisLeftX"
         [attr.y1]="c.medianY"
-        [attr.x2]="axisRightX"
+        [attr.x2]="axisRightX()"
         [attr.y2]="c.medianY"
         stroke="var(--gray-700)" stroke-width="2" stroke-dasharray="6 4"
       />
-      <text class="meta-label" [attr.x]="axisRightX" [attr.y]="c.medianY - 5" text-anchor="end">Mediana</text>
+      <text class="meta-label" [attr.x]="axisRightX()" [attr.y]="c.medianY - 5" text-anchor="end">Mediana</text>
     }
 
     <line
       class="meta-line"
-      [attr.x1]="48"
+      [attr.x1]="axisLeftX"
       [attr.y1]="c.metaRef.y"
-      [attr.x2]="axisRightX"
+      [attr.x2]="axisRightX()"
       [attr.y2]="c.metaRef.y"
     />
-    <text class="meta-label" [attr.x]="axisRightX" [attr.y]="c.metaRef.y - 5" text-anchor="end">
+    <text class="meta-label" [attr.x]="axisRightX()" [attr.y]="c.metaRef.y - 5" text-anchor="end">
       Meta {{ c.metaRef.val }}
     </text>
 
@@ -131,9 +136,13 @@
     }
 
     @for (lbl of chart()?.labels; track lbl.label) {
-      <text class="axis-label" [attr.x]="lbl.x" [attr.y]="axisBottomY + 16" text-anchor="middle">
-        {{ lbl.label }}
-      </text>
+      <text
+        class="axis-label"
+        [attr.x]="lbl.x"
+        [attr.y]="axisBottomY() + 8"
+        text-anchor="end"
+        [attr.transform]="'rotate(-90 ' + lbl.x + ' ' + (axisBottomY() + 8) + ')'"
+      >{{ lbl.label }}</text>
     }
   </svg>
 }
