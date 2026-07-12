@@ -1,4 +1,4 @@
-import { KpiCard } from '../models/dashboard.models';
+import { CapacitacionErroresResponse, DesarrolloResponse, KpiCard, PuntoSatisfaccion } from '../models/dashboard.models';
 import { ForecastVariableResult } from '../services/forecast.service';
 
 export function fmt(n: number, decimals: number): string {
@@ -93,4 +93,42 @@ export function linearRegression(points: { x: number; y: number }[]): Regression
   const slope = cov / varX;
   const intercept = meanY - slope * meanX;
   return { slope, intercept };
+}
+
+export function buildDonutTitle(d: Pick<DesarrolloResponse, 'promedio_global' | 'meta'> | null | undefined): string {
+  const FALLBACK = 'Tiempo de Desarrollo de Productos en Meses';
+  if (!d || !d.meta) return FALLBACK;
+  const diff = d.promedio_global - d.meta;
+  if (Math.abs(diff) < 0.05) {
+    return `El desarrollo de productos está exactamente en la meta de ${fmt(d.meta, 0)} meses`;
+  }
+  const pct = Math.round((Math.abs(diff) / d.meta) * 100);
+  return diff > 0
+    ? `El desarrollo de productos está ${pct}% sobre la meta de ${fmt(d.meta, 0)} meses`
+    : `El desarrollo de productos está ${pct}% bajo la meta de ${fmt(d.meta, 0)} meses`;
+}
+
+export function buildScatterTitle(stats: CapacitacionErroresResponse['stats'] | null | undefined): string {
+  const FALLBACK = 'Capacitación vs. Tasa de Errores';
+  const r = stats?.r_pearson;
+  if (r == null || Number.isNaN(r)) return FALLBACK;
+  const rTxt = fmt(r, 2);
+  return r < 0
+    ? `Más horas de capacitación reducen los errores (r = ${rTxt})`
+    : `Más horas de capacitación no reducen los errores (r = ${rTxt})`;
+}
+
+export function buildLineTitle(serie: PuntoSatisfaccion[] | null | undefined): string {
+  const FALLBACK = 'Índice de Satisfacción Laboral';
+  if (!serie || serie.length < 2) return FALLBACK;
+  const first = serie[0];
+  const last = serie[serie.length - 1];
+  const diff = last.valor - first.valor;
+  if (Math.abs(diff) < 0.05) {
+    return `La satisfacción laboral se mantuvo estable desde ${first.anio}`;
+  }
+  const pct = first.valor !== 0 ? Math.round((Math.abs(diff) / first.valor) * 100) : 0;
+  return diff > 0
+    ? `La satisfacción laboral subió ${pct}% desde ${first.anio}`
+    : `La satisfacción laboral bajó ${pct}% desde ${first.anio}`;
 }

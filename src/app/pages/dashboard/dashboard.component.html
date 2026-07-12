@@ -38,7 +38,7 @@
     <div class="panel panel-donut" [style.filter]="blurred() ? 'blur(' + panelBlurs().donut + 'px)' : 'none'">
       <div class="panel-head">
         <p class="panel-eyebrow">Procesos internos</p>
-        <h2 class="panel-title">Tiempo de Desarrollo de Productos en Meses</h2>
+        <h2 class="panel-title">{{ donutTitle() }}</h2>
         <p class="panel-sub">
           Distribución promedio por categoría (meses) · meta {{ d.desarrollo.meta }} meses · clic
           en categoría para detalle
@@ -52,7 +52,7 @@
       (keydown.enter)="openScatterModal()">
       <div class="panel-head">
         <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
-        <h2 class="panel-title">Capacitación vs. Tasa de Errores</h2>
+        <h2 class="panel-title">{{ scatterTitle() }}</h2>
         <p class="panel-sub">
           Cada punto = mes × región · r = {{ d.capacitacion_errores.stats.r_pearson ?? '-' }} ·
           clic para ampliar
@@ -70,7 +70,7 @@
       (keydown.enter)="openSatisfaccionModal()">
       <div class="panel-head">
         <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
-        <h2 class="panel-title">Índice de Satisfacción Laboral</h2>
+        <h2 class="panel-title">{{ lineTitle() }}</h2>
         <p class="panel-sub">
           Evolución anual global · meta {{ d.satisfaccion.meta }} pts · clic para ampliar con
           cuartiles

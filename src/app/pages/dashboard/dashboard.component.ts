@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 
 import { ChartTooltipComponent } from '../../components/chart-tooltip/chart-tooltip.component';
 import { DonutChartComponent } from '../../components/donut-chart/donut-chart.component';
@@ -15,6 +15,7 @@ import { DashboardService } from '../../services/dashboard.service';
 import { ModalService } from '../../services/modal.service';
 import { ForecastService } from '../../services/forecast.service';
 import { ChatWidgetComponent } from '../../components/chat-widget/chat-widget.component';
+import { buildDonutTitle, buildLineTitle, buildScatterTitle } from '../../utils/format.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -51,6 +52,10 @@ export class DashboardComponent {
     scatter: 0,
     line: 0,
   });
+
+  readonly donutTitle = computed(() => buildDonutTitle(this.data()?.desarrollo));
+  readonly scatterTitle = computed(() => buildScatterTitle(this.data()?.capacitacion_errores.stats));
+  readonly lineTitle = computed(() => buildLineTitle(this.data()?.satisfaccion.serie));
 
   private currentRange: YearRange = { from: 2026, to: 2030 };
   private pendingRange: YearRange | null = null;
