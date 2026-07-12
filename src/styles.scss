@@ -103,7 +103,7 @@ body::before {
 
 .page-shell {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   max-width: 1440px;
   margin: 0 auto;
@@ -133,12 +133,21 @@ body::before {
 .page {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 1vh 1.6vw 0.6vh;
-  height: 100vh;
+  padding: clamp(6px, 1.4vmin, 14px) clamp(10px, 2.2vmin, 26px) clamp(4px, 1vmin, 10px);
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(4px, 1vmin, 10px);
   overflow: hidden;
+  transition: opacity 0.38s ease;
+}
+
+.page--dimmed {
+  opacity: 0.3;
+}
+
+.page--loading {
+  pointer-events: none;
 }
 
 .yrs-wrap {
@@ -157,7 +166,7 @@ body::before {
 
 .yrs-label {
   margin: 0;
-  font-size: 0.62rem;
+  font-size: clamp(0.56rem, 0.6vw + 0.42rem, 0.62rem);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -168,7 +177,7 @@ body::before {
 .yrs-range-text {
   flex: 1;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 0.8vw + 0.5rem, 0.8rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -185,7 +194,7 @@ body::before {
   border: none;
   font-family: inherit;
   font-style: italic;
-  font-size: 0.62rem;
+  font-size: clamp(0.56rem, 0.6vw + 0.42rem, 0.62rem);
   color: var(--gray-500);
   cursor: pointer;
   padding: 2px 6px;
@@ -219,8 +228,7 @@ body::before {
   bottom: 0;
   background: var(--ink);
   border-radius: 4px;
-  transition: left 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-    width 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: left 0.18s cubic-bezier(0.16, 1, 0.3, 1), width 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .yrs-handle {
@@ -268,7 +276,7 @@ body::before {
 }
 
 .yrs-tick-lbl {
-  font-size: 0.56rem;
+  font-size: clamp(0.48rem, 0.5vw + 0.36rem, 0.56rem);
   color: var(--gray-500);
   font-variant-numeric: tabular-nums;
   transition: color 0.2s ease, font-weight 0.2s ease;
@@ -288,7 +296,7 @@ body::before {
 
 .sce-label {
   margin: 0;
-  font-size: 0.62rem;
+  font-size: clamp(0.56rem, 0.6vw + 0.42rem, 0.62rem);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -298,12 +306,14 @@ body::before {
 .sce-buttons {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 6px;
   width: 100%;
 }
 
 .sce-btn {
-  flex: 1 1 0;
+  flex: 1 1 auto;
+  min-width: 60px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -315,10 +325,8 @@ body::before {
   background: transparent;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.28s ease,
-    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.28s ease;
+  transition: background 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease,
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
 }
 
 .sce-btn:hover {
@@ -341,14 +349,14 @@ body::before {
 }
 
 .sce-icon {
-  font-size: 0.78rem;
+  font-size: clamp(0.7rem, 0.5vw + 0.6rem, 0.78rem);
   color: var(--gray-700);
   line-height: 1;
   transition: color 0.25s ease;
 }
 
 .sce-text {
-  font-size: 0.58rem;
+  font-size: clamp(0.54rem, 0.4vw + 0.46rem, 0.58rem);
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -358,7 +366,6 @@ body::before {
   white-space: nowrap;
 }
 
-
 a {
   color: inherit;
 }
@@ -366,14 +373,16 @@ a {
 .masthead {
   position: relative;
   flex: 0 0 auto;
-  padding-bottom: 6px;
+  padding-bottom: clamp(4px, 0.8vmin, 6px);
   margin-bottom: 0;
   border-bottom: 1px solid var(--gray-300);
   opacity: 0;
   animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
+  gap: 6px;
 }
 
 .eyebrow {
@@ -390,13 +399,13 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.3rem;
+  font-size: clamp(0.82rem, 1.1vw + 0.55rem, 1.3rem);
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.25;
   margin: 0;
   text-align: center;
-  max-width: 64%;
+  max-width: 62%;
 }
 
 .subtitle {
@@ -435,8 +444,8 @@ a {
 .kpi-grid {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: minmax(240px, 1.6fr) repeat(4, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: minmax(200px, 1.6fr) repeat(4, minmax(130px, 1fr));
+  gap: clamp(6px, 0.9vmin, 10px);
   margin-bottom: 0;
 }
 
@@ -460,15 +469,13 @@ a {
   background: var(--gray-100);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: clamp(8px, 1.3vmin, 11px) clamp(10px, 1.8vmin, 15px);
   box-shadow: var(--shadow-1);
   opacity: 0;
   transform: translateY(14px);
   animation: riseIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease,
-    filter 0.42s ease;
-
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, filter 0.42s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -502,26 +509,18 @@ a {
   border-radius: 50%;
   flex: none;
   margin-top: 1px;
-  background: radial-gradient(circle at 32% 28%,
-      color-mix(in srgb, var(--status) 55%, white 45%),
-      var(--status) 55%,
-      color-mix(in srgb, var(--status) 70%, black 30%) 100%);
-  box-shadow: 0 0 0 3px var(--gray-100), 0 0 6px 1px var(--status-glow),
-    0 0 13px 3px var(--status-glow);
+  background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--status) 55%, white 45%),
+      var(--status) 55%, color-mix(in srgb, var(--status) 70%, black 30%) 100%);
+  box-shadow: 0 0 0 3px var(--gray-100), 0 0 6px 1px var(--status-glow), 0 0 13px 3px var(--status-glow);
   animation: ledPulse 2.6s ease-in-out infinite;
 }
 
 @keyframes ledPulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 3px var(--gray-100), 0 0 6px 1px var(--status-glow),
-      0 0 12px 3px var(--status-glow);
+  0%, 100% {
+    box-shadow: 0 0 0 3px var(--gray-100), 0 0 6px 1px var(--status-glow), 0 0 12px 3px var(--status-glow);
   }
-
   50% {
-    box-shadow: 0 0 0 3px var(--gray-100), 0 0 9px 2px var(--status-glow),
-      0 0 20px 6px var(--status-glow);
+    box-shadow: 0 0 0 3px var(--gray-100), 0 0 9px 2px var(--status-glow), 0 0 20px 6px var(--status-glow);
   }
 }
 
@@ -529,12 +528,12 @@ a {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: clamp(4px, 0.8vmin, 6px);
 }
 
 .kpi-label {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: clamp(0.6rem, 0.45vw + 0.45rem, 0.72rem);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -549,7 +548,7 @@ a {
   align-items: baseline;
   column-gap: 8px;
   row-gap: 2px;
-  font-size: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  font-size: clamp(1.3rem, 1.1rem + 0.9vw, 2rem);
   font-weight: 600;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums lining-nums;
@@ -565,7 +564,7 @@ a {
   border-radius: 2px;
   background: var(--gray-200);
   overflow: hidden;
-  margin: 8px 0 6px;
+  margin: clamp(6px, 1vmin, 8px) 0 clamp(4px, 0.8vmin, 6px);
 }
 
 .kpi-bar-fill {
@@ -578,12 +577,13 @@ a {
 
 .kpi-meta {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 0.3vw + 0.64rem, 0.8rem);
   color: var(--gray-700);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .kpi-meta strong {
@@ -603,7 +603,7 @@ a {
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1.6fr;
-  gap: 10px;
+  gap: clamp(6px, 0.9vmin, 10px);
   margin-bottom: 0;
 }
 
@@ -616,13 +616,14 @@ a {
   background: var(--gray-100);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: 10px 16px;
+  padding: clamp(8px, 1.2vmin, 10px) clamp(10px, 1.8vmin, 16px);
   box-shadow: var(--shadow-1);
   opacity: 0;
   transform: translateY(16px);
   animation: riseIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: 0.45s;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -644,13 +645,13 @@ a {
 }
 
 .panel-title {
-  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.2rem);
+  font-size: clamp(0.92rem, 0.86rem + 0.3vw, 1.2rem);
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.005em;
 }
 
-.panel>*:not(.panel-head) {
+.panel > *:not(.panel-head) {
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -658,9 +659,10 @@ a {
 app-donut-chart {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: clamp(12px, 2.4vw, 28px);
   width: 100%;
   height: 100%;
 }
@@ -674,7 +676,7 @@ app-gauss-curve-chart {
 
 .donut-wrap {
   position: relative;
-  max-width: 220px;
+  max-width: clamp(140px, 24vw, 220px);
   height: 100%;
   margin: 0;
   flex: 0 0 auto;
@@ -694,8 +696,7 @@ app-gauss-curve-chart {
   fill: none;
   stroke-width: 30;
   stroke-linecap: butt;
-  transition: stroke-width 0.25s ease, stroke-dashoffset 1.05s cubic-bezier(0.22, 0.9, 0.28, 1),
-    opacity 0.3s ease;
+  transition: stroke-width 0.25s ease, stroke-dashoffset 1.05s cubic-bezier(0.22, 0.9, 0.28, 1), opacity 0.3s ease;
   cursor: pointer;
 }
 
@@ -720,7 +721,7 @@ app-gauss-curve-chart {
 }
 
 .donut-center-value {
-  font-size: 1.7rem;
+  font-size: clamp(1.05rem, 3vmin, 1.7rem);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -728,7 +729,7 @@ app-gauss-curve-chart {
 }
 
 .donut-center-label {
-  font-size: 0.78rem;
+  font-size: clamp(0.68rem, 1.6vmin, 0.78rem);
   font-style: italic;
   color: var(--gray-600);
   margin-top: 3px;
@@ -750,7 +751,7 @@ app-gauss-curve-chart {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.78rem;
+  font-size: clamp(0.7rem, 0.5vw + 0.6rem, 0.78rem);
   cursor: pointer;
   padding: 1px 4px;
   border-radius: 6px;
@@ -951,6 +952,7 @@ app-gauss-curve-chart {
   opacity: 0;
   transition: opacity 0.16s ease, transform 0.16s ease;
   white-space: nowrap;
+  max-width: min(80vw, 320px);
   box-shadow: var(--shadow-2);
 }
 
@@ -978,7 +980,7 @@ app-gauss-curve-chart {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: clamp(8px, 4vw, 20px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -994,10 +996,10 @@ app-gauss-curve-chart {
   background: var(--gray-100);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  padding: 28px;
+  padding: clamp(16px, 4vw, 28px);
   max-width: 720px;
   width: 100%;
-  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
   box-shadow: var(--shadow-2);
   transform: translateY(20px);
@@ -1010,8 +1012,8 @@ app-gauss-curve-chart {
 
 .modal-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: clamp(12px, 3vw, 20px);
+  right: clamp(12px, 3vw, 20px);
   z-index: 1;
   background: none;
   border: none;
@@ -1023,7 +1025,7 @@ app-gauss-curve-chart {
 }
 
 .modal-title {
-  font-size: 1.4rem;
+  font-size: clamp(1.1rem, 0.9rem + 1vw, 1.4rem);
   font-weight: 600;
   margin: 0 0 8px;
 }
@@ -1037,8 +1039,8 @@ app-gauss-curve-chart {
 .modal-wide {
   max-width: 90vw;
   width: 90vw;
-  height: 90vh;
-  max-height: 90vh;
+  height: 90dvh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
 }
@@ -1066,7 +1068,7 @@ app-gauss-curve-chart {
 
 .modal-warning {
   margin-top: 24px;
-  padding: 16px;
+  padding: clamp(10px, 2.4vw, 16px);
   background-color: rgba(224, 167, 46, 0.1);
   border-left: 4px solid var(--c-yellow);
   color: var(--ink);
@@ -1090,7 +1092,7 @@ app-gauss-curve-chart {
 .modal--forecast-params {
   max-width: 680px;
   width: 100%;
-  max-height: 80vh;
+  max-height: 80dvh;
 }
 
 .modal-filters {
@@ -1107,10 +1109,11 @@ app-gauss-curve-chart {
 .modal-header-row {
   flex: 0 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  padding-right: 40px;
+  padding-right: clamp(28px, 6vw, 40px);
   padding-bottom: 14px;
   margin-bottom: 14px;
   border-bottom: 1px solid var(--gray-200);
@@ -1182,7 +1185,7 @@ app-gauss-curve-chart {
   border-radius: 8px;
   background: var(--bg);
   color: var(--ink);
-  min-width: 140px;
+  min-width: clamp(100px, 26vw, 140px);
 }
 
 .filter-disabled {
@@ -1207,8 +1210,7 @@ app-gauss-curve-chart {
 
 .panel-clickable {
   cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease,
-    filter 0.42s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, filter 0.42s ease;
 }
 
 .panel-clickable:hover {
@@ -1220,7 +1222,7 @@ app-gauss-curve-chart {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: clamp(30px, 8vw, 60px) clamp(10px, 4vw, 20px);
   animation: riseIn 0.6s ease forwards;
 }
 
@@ -1234,17 +1236,17 @@ app-gauss-curve-chart {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 24px;
+  padding: clamp(8px, 1.6vw, 11px) clamp(14px, 4vw, 24px);
   border-radius: 999px;
   background: var(--gray-100);
   border: 1px solid var(--gray-200);
   box-shadow: var(--shadow-1);
   font-style: italic;
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 1vw + 0.7rem, 1rem);
   color: var(--gray-700);
   cursor: default;
-  transition: padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-    letter-spacing 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  transition: padding 0.45s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease;
 }
 
 .loading-spinner:hover {
@@ -1271,7 +1273,7 @@ app-gauss-curve-chart {
 
 .error-msg {
   text-align: center;
-  padding: 40px 20px;
+  padding: clamp(20px, 6vw, 40px) clamp(12px, 4vw, 20px);
   color: var(--c-red);
   font-style: italic;
 }
@@ -1291,36 +1293,9 @@ app-gauss-curve-chart {
     opacity: 0;
     transform: translateY(14px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@media (max-width: 900px) {
-  .charts-grid {
-    grid-template-columns: 1fr 1.3fr;
-  }
-
-  .kpi-label {
-    font-size: 0.66rem;
-  }
-
-  .kpi-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  }
-
-  .filter-card {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 520px) {
-  .kpi-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
   }
 }
 
@@ -1335,18 +1310,6 @@ app-gauss-curve-chart {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
   }
-}
-
-.page {
-  transition: opacity 0.38s ease;
-}
-
-.page--dimmed {
-  opacity: 0.3;
-}
-
-.page--loading {
-  pointer-events: none;
 }
 
 .filter-card.controls-disabled {
@@ -1385,12 +1348,12 @@ app-gauss-curve-chart {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: clamp(3px, 0.6vw, 4px) clamp(8px, 1.6vw, 10px);
   border: 1px solid var(--gray-300);
   border-radius: 999px;
   background: transparent;
   font-family: inherit;
-  font-size: 0.62rem;
+  font-size: clamp(0.58rem, 0.5vw + 0.48rem, 0.62rem);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1439,7 +1402,7 @@ app-gauss-curve-chart {
 .gauss-svg {
   width: 100%;
   height: auto;
-  max-height: 160px;
+  max-height: clamp(110px, 24vh, 160px);
   overflow: visible;
 }
 
@@ -1612,4 +1575,132 @@ app-gauss-curve-chart {
   opacity: 0.5;
   filter: grayscale(40%);
   transition: opacity 0.25s, filter 0.25s;
+}
+
+@media (max-width: 1180px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+  }
+  .filter-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr 1.3fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .masthead {
+    justify-content: center;
+    padding-bottom: 8px;
+  }
+  .masthead h1 {
+    position: static;
+    transform: none;
+    max-width: 100%;
+    order: 2;
+    flex: 1 1 100%;
+  }
+  .theme-toggle {
+    order: 1;
+    margin-left: auto;
+  }
+  .charts-grid,
+  .charts-grid.full {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-wide {
+    width: 96vw;
+    height: 92dvh;
+    max-height: 92dvh;
+  }
+  .modal-body-grid {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .modal-info-col {
+    max-height: 26dvh;
+  }
+  .forecast-params-grid {
+    grid-template-columns: 1fr;
+  }
+  .fp-header {
+    display: none;
+  }
+  .fp-cell {
+    padding: 4px 0;
+  }
+  .fp-actions {
+    flex-direction: column-reverse;
+  }
+  .fp-btn-cancel,
+  .fp-btn-apply {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .kpi-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tooltip {
+    max-width: 78vw;
+    white-space: normal;
+  }
+}
+
+@media (orientation: portrait) {
+  html,
+  body {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .page-shell {
+    height: auto;
+    min-height: 100dvh;
+  }
+  .page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .page {
+    padding: clamp(3px, 0.8vh, 8px) clamp(8px, 2vw, 18px) clamp(2px, 0.6vh, 6px);
+    gap: clamp(2px, 0.6vh, 6px);
+  }
+  .kpi-card {
+    padding: 6px 10px;
+  }
+  .panel {
+    padding: 6px 12px;
+  }
+  .masthead h1 {
+    font-size: clamp(0.7rem, 2.6vh, 1rem);
+  }
+  .gauss-svg {
+    max-height: 90px;
+  }
 }

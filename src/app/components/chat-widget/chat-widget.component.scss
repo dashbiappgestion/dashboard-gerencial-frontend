@@ -1,13 +1,13 @@
 .chat-fab-wrap {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: clamp(12px, 3vw, 24px);
+  right: clamp(12px, 3vw, 24px);
   z-index: 900;
 }
 
 .chat-fab {
-  width: 52px;
-  height: 52px;
+  width: clamp(44px, 6vw, 52px);
+  height: clamp(44px, 6vw, 52px);
   border-radius: 50%;
   border: 1px solid var(--gray-300);
   background: var(--ink);
@@ -26,11 +26,14 @@
 
 .chat-panel {
   position: fixed;
-  bottom: 88px;
-  right: 24px;
+  bottom: clamp(72px, 12vw, 88px);
+  right: clamp(8px, 2vw, 24px);
+  left: clamp(8px, 2vw, 24px);
   z-index: 950;
-  width: min(100vw - 2rem, 26rem);
-  max-height: min(78vh, 34rem);
+  width: auto;
+  max-width: 26rem;
+  margin-left: auto;
+  max-height: min(78dvh, 34rem);
   background: var(--gray-100);
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
@@ -42,8 +45,10 @@
 
 @media (min-width: 900px) {
   .chat-panel {
+    left: auto;
     width: min(100vw - 2rem, 34rem);
-    max-height: min(78vh, 38rem);
+    max-width: 34rem;
+    max-height: min(78dvh, 38rem);
   }
 }
 
@@ -148,6 +153,7 @@
 
 .chat-input {
   flex: 1 1 auto;
+  min-width: 0;
   font-family: inherit;
   font-size: 0.86rem;
   padding: 8px 10px;
