@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, effect, inject, input, output, signal } from '@angular/core';
 
 import { KpiCard } from '../../models/dashboard.models';
-import { animateCount, fmt, formatMeta, prefersReducedMotion } from '../../utils/format.util';
+import { animateCount, fmt, formatDiff, formatMeta, prefersReducedMotion } from '../../utils/format.util';
 import { ForecastVariableResult } from '../../services/forecast.service';
 
 @Component({
@@ -25,9 +25,9 @@ export class KpiCardComponent {
   readonly forecastStatus = signal<string | null>(null);
 
   formatMeta = formatMeta;
+  formatDiff = formatDiff;
   fmt = fmt;
 
-  /** Compute semaphore status from a projected value vs meta */
   private calcStatus(value: number, meta: number, higherIsBetter: boolean): string {
     const ratio = higherIsBetter ? value / meta : meta / value;
     if (ratio >= 1) return 'green';
@@ -43,7 +43,6 @@ export class KpiCardComponent {
       const suffix = c.suffix || '';
 
       if (f) {
-        // Forecast mode: display projected value, recompute status vs meta
         this.displayValue.set('…');
         animateCount(f.punto_medio, c.decimals, '', suffix, delay, (text) => {
           this.displayValue.set(text);
@@ -60,7 +59,6 @@ export class KpiCardComponent {
           this.cdr.detectChanges();
         }, delay + 60);
       } else {
-        // Real mode: historical value
         this.forecastStatus.set(null);
         this.displayValue.set('0' + suffix);
         this.barPct.set(0);

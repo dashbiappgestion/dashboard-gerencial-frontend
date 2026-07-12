@@ -11,60 +11,39 @@
     <line class="axis-line" [attr.x1]="54" [attr.y1]="axisBottomY" [attr.x2]="axisRightX()" [attr.y2]="axisBottomY" />
 
     @for (t of chart().yTicks; track t.value) {
-      <text class="tick-label" x="46" [attr.y]="t.y + 3" text-anchor="end">{{ t.value }}</text>
+    <text class="tick-label" x="46" [attr.y]="t.y + 3" text-anchor="end">{{ t.value }}</text>
     }
 
-    <line
-      class="meta-line"
-      [attr.x1]="54"
-      [attr.y1]="chart().metaY"
-      [attr.x2]="axisRightX()"
-      [attr.y2]="chart().metaY"
-    />
+    <line class="meta-line" [attr.x1]="54" [attr.y1]="chart().metaY" [attr.x2]="axisRightX()"
+      [attr.y2]="chart().metaY" />
     <text class="meta-label" [attr.x]="axisRightX()" [attr.y]="chart().metaY - 8" text-anchor="end">
       Meta {{ meta() }} pts
     </text>
 
     <path class="area-path" [attr.d]="chart().areaD" [style.opacity]="areaVisible() ? 1 : 0" />
 
-    <line
-      class="guide-line"
-      [attr.x1]="guideX()"
-      [attr.y1]="28"
-      [attr.x2]="guideX()"
-      [attr.y2]="axisBottomY"
-      [style.opacity]="guideVisible() ? 1 : 0"
-    />
+    <line class="guide-line" [attr.x1]="guideX()" [attr.y1]="28" [attr.x2]="guideX()" [attr.y2]="axisBottomY"
+      [style.opacity]="guideVisible() ? 1 : 0" />
 
     <path #linePath class="line-path" [attr.d]="chart().lineD" />
 
     @if (chart().forecastData; as fd) {
-      <path class="forecast-band" [attr.d]="fd.bandD" />
-      <path class="forecast-line" [attr.d]="fd.lineD" />
-      <circle
-        class="forecast-point"
-        [attr.cx]="fd.cx"
-        [attr.cy]="fd.cy"
-        (mouseenter)="onForecastEnter($event, fd)"
-        (mouseleave)="onMarkerLeave()"
-      />
+    <path class="forecast-band" [attr.d]="fd.bandD" />
+    <path class="forecast-line" [attr.d]="fd.lineD" />
+    <circle class="forecast-point" [attr.cx]="fd.cx" [attr.cy]="fd.cy" (mouseenter)="onForecastEnter($event, fd)"
+      (mouseleave)="onMarkerLeave()" />
     }
 
     @for (lbl of chart().labels; track lbl.anio) {
-      <text class="month-label" [attr.x]="lbl.x" y="306" text-anchor="middle">{{ lbl.anio }}</text>
+    <text class="month-label" [attr.x]="lbl.x" y="306" text-anchor="middle">{{ lbl.anio }}</text>
     }
 
     @for (m of chart().markers; track m.anio; let i = $index) {
-      <g
-        class="marker"
-        [attr.data-status]="m.status"
-        [style.animation-delay]="m.delay"
-        (mouseenter)="onMarkerEnter($event, m, i)"
-        (mouseleave)="onMarkerLeave()"
-      >
-        <circle class="ring" [attr.cx]="m.cx" [attr.cy]="m.cy" r="4.4" />
-        <circle class="hit" [attr.cx]="m.cx" [attr.cy]="m.cy" r="13" />
-      </g>
+    <g class="marker" [attr.data-status]="m.status" [style.animation-delay]="m.delay"
+      (mouseenter)="onMarkerEnter($event, m, i)" (mouseleave)="onMarkerLeave()">
+      <circle class="ring" [attr.cx]="m.cx" [attr.cy]="m.cy" r="4.4" />
+      <circle class="hit" [attr.cx]="m.cx" [attr.cy]="m.cy" r="13" />
+    </g>
     }
   </svg>
 </div>

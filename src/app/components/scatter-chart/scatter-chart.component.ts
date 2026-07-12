@@ -91,7 +91,7 @@ export class ScatterChartComponent {
       cy: yS(fe.punto_medio),
       xInf: xS(fh.intervalo_inferior),
       xSup: xS(fh.intervalo_superior),
-      yInf: yS(fe.intervalo_inferior), // higher value physically on screen
+      yInf: yS(fe.intervalo_inferior),
       ySup: yS(fe.intervalo_superior),
       horas: fh.punto_medio,
       errores: fe.punto_medio,

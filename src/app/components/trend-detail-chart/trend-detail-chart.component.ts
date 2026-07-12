@@ -23,6 +23,7 @@ export class TrendDetailChartComponent {
   readonly meta = input.required<number>();
   readonly forecast = input<ForecastVariableResult | null>(null);
   readonly activeScenario = input<string>('real');
+  readonly rotarEtiquetas = input<boolean>(false);
 
   private readonly tooltip = inject(TooltipService);
   private readonly hostRef = inject(ElementRef<HTMLElement>);
@@ -105,19 +106,19 @@ export class TrendDetailChartComponent {
 
     const iqrBox = (st?.q1 != null && st?.q3 != null)
       ? {
-          x: this.left,
-          y: yS(st.q3),
-          width: plotW,
-          height: Math.abs(yS(st.q1) - yS(st.q3)),
-          yQ1: yS(st.q1),
-          yQ3: yS(st.q3),
-          yMin: st.limite_inferior != null ? yS(st.limite_inferior) : null,
-          yMax: st.limite_superior != null ? yS(st.limite_superior) : null,
-          labelQ1: st.q1,
-          labelQ3: st.q3,
-          labelMin: st.limite_inferior,
-          labelMax: st.limite_superior,
-        }
+        x: this.left,
+        y: yS(st.q3),
+        width: plotW,
+        height: Math.abs(yS(st.q1) - yS(st.q3)),
+        yQ1: yS(st.q1),
+        yQ3: yS(st.q3),
+        yMin: st.limite_inferior != null ? yS(st.limite_inferior) : null,
+        yMax: st.limite_superior != null ? yS(st.limite_superior) : null,
+        labelQ1: st.q1,
+        labelQ3: st.q3,
+        labelMin: st.limite_inferior,
+        labelMax: st.limite_superior,
+      }
       : null;
 
     let forecastData = null;

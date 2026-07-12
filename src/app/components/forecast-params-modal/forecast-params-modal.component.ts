@@ -20,7 +20,6 @@ export class ForecastParamsModalComponent {
   private readonly forecastService = inject(ForecastService);
   readonly visible = this.forecastService.paramsModalOpen;
 
-  // Using a flat list for UI simplicity, mapping back to ForecastParams on save
   readonly rows = signal<ParamRow[]>([
     { key: 'margen_neto', label: 'Margen Neto', tasa_cambio: 0, confianza: 'media' },
     { key: 'roi', label: 'ROI', tasa_cambio: 0, confianza: 'media' },

@@ -164,7 +164,6 @@ export class LineChartComponent implements AfterViewInit, OnDestroy {
         const nextW = Math.round(this.h * aspect);
         if (nextW !== this.w()) {
           this.w.set(nextW);
-          // Evita artefactos del dash-animation al recalcular la geometría
           const path = this.linePathRef?.nativeElement;
           if (path) {
             path.style.strokeDasharray = '';

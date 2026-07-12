@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApplicationRef, Injectable, inject, signal } from '@angular/core';
-
 import { KpiModalData, KpiModalId, ModalFilters } from '../models/modal.models';
+import { StatusColor } from '../models/dashboard.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -15,7 +15,7 @@ export class ModalService {
   readonly error = signal<string | null>(null);
   readonly data = signal<KpiModalData | null>(null);
   readonly filters = signal<ModalFilters>({});
-
+  readonly currentStatus = signal<StatusColor | null>(null);
   private currentKpiId: KpiModalId | null = null;
   private yearRange: { anio_inicio: number; anio_fin: number } | null = null;
 
@@ -23,17 +23,18 @@ export class ModalService {
     this.yearRange = { anio_inicio, anio_fin };
   }
 
-  open(kpiId: KpiModalId, initial: Partial<ModalFilters> = {}): void {
+  open(kpiId: KpiModalId, initial: Partial<ModalFilters> = {}, status: StatusColor | null = null): void {
     this.currentKpiId = kpiId;
     this.filters.set({ region: null, anio: null, trimestre: null, mes: null, categoria: null, ...initial });
+    this.currentStatus.set(status);
     this.visible.set(true);
     this.load();
   }
-
   close(): void {
     this.visible.set(false);
     this.data.set(null);
     this.error.set(null);
+    this.currentStatus.set(null);
     this.currentKpiId = null;
   }
 

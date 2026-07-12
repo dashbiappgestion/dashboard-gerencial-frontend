@@ -1,4 +1,5 @@
 import { KpiCard } from '../models/dashboard.models';
+import { ForecastVariableResult } from '../services/forecast.service';
 
 export function fmt(n: number, decimals: number): string {
   return Number(n).toLocaleString('es-PE', {
@@ -11,6 +12,13 @@ export function formatMeta(card: KpiCard): string {
   if (card.id === 'paises') return fmt(card.meta, 0) + ' países';
   if (card.id === 'nps') return fmt(card.meta, 0) + ' pts';
   return fmt(card.meta, card.decimals) + card.suffix;
+}
+
+export function formatDiff(card: KpiCard, forecast?: ForecastVariableResult | null): string {
+  const valorActual = forecast ? forecast.punto_medio : card.valor;
+  const diferencia = valorActual - card.meta;
+  const signo = diferencia >= 0 ? '+' : '-';
+  return `${signo}${fmt(Math.abs(diferencia), card.decimals)}${card.suffix}`;
 }
 
 export function easeOutCubic(t: number): number {
@@ -68,4 +76,21 @@ export function catmullRom2bezier(pts: ChartPoint[]): string {
     d += `C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y} `;
   }
   return d;
+}
+
+export interface RegressionResult {
+  slope: number;
+  intercept: number;
+}
+export function linearRegression(points: { x: number; y: number }[]): RegressionResult | null {
+  const n = points.length;
+  if (n < 2) return null;
+  const meanX = points.reduce((s, p) => s + p.x, 0) / n;
+  const meanY = points.reduce((s, p) => s + p.y, 0) / n;
+  const varX = points.reduce((s, p) => s + (p.x - meanX) ** 2, 0);
+  if (varX === 0) return null;
+  const cov = points.reduce((s, p) => s + (p.x - meanX) * (p.y - meanY), 0);
+  const slope = cov / varX;
+  const intercept = meanY - slope * meanX;
+  return { slope, intercept };
 }

@@ -9,12 +9,12 @@ import { ScatterChartComponent } from '../../components/scatter-chart/scatter-ch
 import { YearRangeSliderComponent, YearRange } from '../../components/year-range-slider/year-range-slider.component';
 import { ScenarioSelectorComponent } from '../../components/scenario-selector/scenario-selector.component';
 import { ForecastParamsModalComponent } from '../../components/forecast-params-modal/forecast-params-modal.component';
-import { DashboardData } from '../../models/dashboard.models';
+import { DashboardData, StatusColor } from '../../models/dashboard.models';
 import { KpiModalId } from '../../models/modal.models';
 import { DashboardService } from '../../services/dashboard.service';
 import { ModalService } from '../../services/modal.service';
 import { ForecastService } from '../../services/forecast.service';
-
+import { ChatWidgetComponent } from '../../components/chat-widget/chat-widget.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +29,7 @@ import { ForecastService } from '../../services/forecast.service';
     YearRangeSliderComponent,
     ScenarioSelectorComponent,
     ForecastParamsModalComponent,
+    ChatWidgetComponent,
   ],
   templateUrl: './dashboard.component.html',
 })
@@ -159,8 +160,8 @@ export class DashboardComponent {
     }, this.DEBOUNCE_MS);
   }
 
-  openCardModal(kpiId: string): void {
-    this.modalService.open(kpiId as KpiModalId);
+  openCardModal(kpiId: string, status: StatusColor): void {
+    this.modalService.open(kpiId as KpiModalId, {}, status);
   }
 
   toggleTheme(): void {

@@ -1,0 +1,71 @@
+<div class="chat-fab-wrap">
+  <button type="button" class="chat-fab" (click)="togglePanel()" aria-label="Abrir asistente">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  </button>
+  @if (abierto()) {
+  <section class="chat-panel">
+    <header class="chat-header">
+      <h2 class="chat-title">{{ vistaLista() ? 'Mis chats' : 'Asistente del Dashboard' }}</h2>
+      <div class="chat-actions">
+        @if (!vistaLista()) {
+        <button type="button" class="chat-icon-btn" (click)="abrirListaChats()" title="Mis chats">☰</button>
+        <button type="button" class="chat-icon-btn" (click)="iniciarNuevoChat()" title="Nuevo chat">＋</button>
+        } @else {
+        <button type="button" class="chat-icon-btn" (click)="volverAlChat()" title="Volver">←</button>
+        }
+        <button type="button" class="chat-icon-btn" (click)="togglePanel()" title="Cerrar">×</button>
+      </div>
+    </header>
+    @if (vistaLista()) {
+    <div class="chat-messages">
+      @if (cargandoLista()) {
+      <p class="chat-hint">Cargando chats...</p>
+      } @else if (listaChats().length === 0) {
+      <p class="chat-hint">Aun no tienes conversaciones.</p>
+      } @else {
+      <ul class="chat-list">
+        @for (item of listaChats(); track item.sessionId) {
+        <li>
+          <button type="button" class="chat-list-item" (click)="seleccionarChat(item)">
+            <span class="chat-list-preview">{{ item.preview }}</span>
+            <span class="chat-list-meta">{{ formatoFechaLista(item.updatedAt) }} · {{ estadoLista(item) }}</span>
+          </button>
+        </li>
+        }
+      </ul>
+      }
+    </div>
+    } @else {
+    <div class="chat-messages">
+      @for (m of mensajes(); track $index) {
+      <article class="chat-msg" [class.chat-msg--user]="m.sender === 'USER'">
+        <div class="chat-msg-bubble markdown-body" [innerHTML]="m.content | markdown"></div>
+      </article>
+      }
+      @if (procesando()) {
+      <p class="chat-hint chat-hint--typing">{{ textoProcesando() }}</p>
+      }
+      @if (cerrada()) {
+      <p class="chat-hint">Esta conversacion llego a su limite de mensajes. Inicia un nuevo chat para continuar.</p>
+      }
+    </div>
+    <footer class="chat-footer">
+      <input
+        type="text"
+        class="chat-input"
+        placeholder="Escribe tu pregunta..."
+        [(ngModel)]="textoEntrada"
+        (keydown.enter)="enviar()"
+        [disabled]="procesando() || cerrada()"
+      />
+      <button type="button" class="chat-send" (click)="enviar()" [disabled]="procesando() || cerrada() || !textoEntrada.trim()">
+        Enviar
+      </button>
+    </footer>
+    <p class="chat-remaining">{{ mensajesRestantes() }} mensajes restantes en esta conversacion</p>
+    }
+  </section>
+  }
+</div>

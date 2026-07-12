@@ -140,8 +140,8 @@
         class="axis-label"
         [attr.x]="lbl.x"
         [attr.y]="axisBottomY() + 8"
-        text-anchor="end"
-        [attr.transform]="'rotate(-90 ' + lbl.x + ' ' + (axisBottomY() + 8) + ')'"
+        [attr.text-anchor]="rotarEtiquetas() ? 'end' : 'middle'"
+        [attr.transform]="rotarEtiquetas() ? ('rotate(-90 ' + lbl.x + ' ' + (axisBottomY() + 8) + ')') : null"
       >{{ lbl.label }}</text>
     }
   </svg>

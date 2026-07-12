@@ -36,7 +36,6 @@ export class YearRangeSliderComponent implements OnInit {
   fromYear = signal(MIN_YEAR);
   toYear = signal(MAX_YEAR);
 
-  /** El handle activo se dibuja encima (z-index mayor). */
   activeHandle = signal<'from' | 'to' | null>(null);
 
   private dragging: 'from' | 'to' | null = null;

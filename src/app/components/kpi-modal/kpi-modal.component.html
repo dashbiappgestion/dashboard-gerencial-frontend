@@ -72,19 +72,14 @@
       <div class="modal-chart-col">
 
         @if (isTrend(d)) {
-
-        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta" />
-
+        <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta"
+          [rotarEtiquetas]="esKpiPrincipal(d.kpi_id)" />
         } @else if (isDispersion(d)) {
-
         <app-scatter-detail-chart [modalData]="d" />
-
         } @else if (isProductos(d)) {
-
         <app-trend-detail-chart [serie]="d.serie" [stats]="d.stats" [meta]="d.meta"
           [forecast]="forecastService.forecastData()?.tiempo_desarrollo?.[d.categoria] ?? null"
-          [activeScenario]="forecastService.activeScenario()" />
-
+          [activeScenario]="forecastService.activeScenario()" [rotarEtiquetas]="esKpiPrincipal(d.kpi_id)" />
         }
 
         @if (isGaussVisible(d)) {
@@ -125,6 +120,14 @@
             }
           </ul>
           Siguiendo las condiciones actuales de crecimiento.
+        </div>
+        }
+
+        @if (getMetaPredictionText(d); as year) {
+        <div class="modal-warning"
+          style="margin-top: 10px; border-left-color: var(--c-green); background-color: var(--white);">
+          <span style="color: var(--ink);">Se estima que se alcanza la meta en <strong>{{ year }}</strong> en las
+            condiciones actuales</span>
         </div>
         }
 

@@ -31,7 +31,7 @@
   </div>
   <p class="kpi-meta">
     Meta: <strong>{{ formatMeta(card()) }}</strong>
-    <span class="kpi-pct">{{ fmt(card().pct, 1) }}%</span>
+    <span class="kpi-pct">Dif: {{ formatDiff(card(), forecast()) }}</span>
     @if (yearLabel() != null) {
       <i class="year-label">{{ yearLabel() }}</i>
     }

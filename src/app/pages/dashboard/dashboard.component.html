@@ -14,14 +14,8 @@
   </div>
   } @else if (data(); as d) {
   <header class="masthead">
-    <h1>Resumen Ejecutivo</h1>
-    <div class="semaphore-key">
-      <span class="key-item" data-status="green"><i></i>Cumple o supera la meta</span>
-      <span class="key-item" data-status="yellow"><i></i>Cerca de la meta</span>
-      <span class="key-item" data-status="red"><i></i>Bajo la meta</span>
-    </div>
+    <h1>Desempeño Comercial Anual - Vista Para Gerencia de Apple Inc.</h1>
     <button class="theme-toggle" (click)="toggleTheme()" [title]="isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-
       {{ isDark() ? 'Modo Claro' : 'Modo Oscuro' }}
     </button>
   </header>
@@ -34,24 +28,14 @@
     </div>
 
     @for (card of d.tarjetas.tarjetas; track card.id; let i = $index) {
-    <app-kpi-card
-      [card]="card"
-      [index]="i"
-      [blurPx]="cardBlurs()[i]"
-      [blurred]="blurred()"
-      [yearLabel]="toYear()"
-      [forecast]="forecastData()?.[card.id] ?? null"
-      [activeScenario]="forecast.activeScenario()"
-      (cardClick)="openCardModal(card.id)"
-    />
+    <app-kpi-card [card]="card" [index]="i" [blurPx]="cardBlurs()[i]" [blurred]="blurred()" [yearLabel]="toYear()"
+      [forecast]="forecastData()?.[card.id] ?? null" [activeScenario]="forecast.activeScenario()"
+      (cardClick)="openCardModal(card.id, card.status)" />
     }
   </section>
 
   <section class="charts-grid" [class.forecast-computing]="forecast.loading()">
-    <div
-      class="panel panel-donut"
-      [style.filter]="blurred() ? 'blur(' + panelBlurs().donut + 'px)' : 'none'"
-    >
+    <div class="panel panel-donut" [style.filter]="blurred() ? 'blur(' + panelBlurs().donut + 'px)' : 'none'">
       <div class="panel-head">
         <p class="panel-eyebrow">Procesos internos</p>
         <h2 class="panel-title">Tiempo de Desarrollo de Productos en Meses</h2>
@@ -63,13 +47,9 @@
       <app-donut-chart [categorias]="d.desarrollo.categorias" (categoryClick)="openDesarrolloModal($event)" />
     </div>
 
-    <div
-      class="panel panel-scatter panel-clickable"
-      tabindex="0"
-      [style.filter]="blurred() ? 'blur(' + panelBlurs().scatter + 'px)' : 'none'"
-      (click)="openScatterModal()"
-      (keydown.enter)="openScatterModal()"
-    >
+    <div class="panel panel-scatter panel-clickable" tabindex="0"
+      [style.filter]="blurred() ? 'blur(' + panelBlurs().scatter + 'px)' : 'none'" (click)="openScatterModal()"
+      (keydown.enter)="openScatterModal()">
       <div class="panel-head">
         <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
         <h2 class="panel-title">Capacitación vs. Tasa de Errores</h2>
@@ -78,26 +58,16 @@
           clic para ampliar
         </p>
       </div>
-      <div (click)="$event.stopPropagation()">
-        <app-scatter-chart 
-          [puntos]="d.capacitacion_errores.puntos" 
-          [meta_horas]="d.capacitacion_errores.meta_horas" 
-          [forecastHoras]="forecastData()?.horas_capacitacion ?? null" 
-          [forecastErrores]="forecastData()?.tasa_errores ?? null" 
-          [activeScenario]="forecast.activeScenario()"
-        />
-      </div>
+      <app-scatter-chart [puntos]="d.capacitacion_errores.puntos" [meta_horas]="d.capacitacion_errores.meta_horas"
+        [forecastHoras]="forecastData()?.horas_capacitacion ?? null"
+        [forecastErrores]="forecastData()?.tasa_errores ?? null" [activeScenario]="forecast.activeScenario()" />
     </div>
   </section>
 
   <section class="charts-grid full" [class.forecast-computing]="forecast.loading()">
-    <div
-      class="panel panel-line panel-clickable"
-      tabindex="0"
-      [style.filter]="blurred() ? 'blur(' + panelBlurs().line + 'px)' : 'none'"
-      (click)="openSatisfaccionModal()"
-      (keydown.enter)="openSatisfaccionModal()"
-    >
+    <div class="panel panel-line panel-clickable" tabindex="0"
+      [style.filter]="blurred() ? 'blur(' + panelBlurs().line + 'px)' : 'none'" (click)="openSatisfaccionModal()"
+      (keydown.enter)="openSatisfaccionModal()">
       <div class="panel-head">
         <p class="panel-eyebrow">Aprendizaje y crecimiento</p>
         <h2 class="panel-title">Índice de Satisfacción Laboral</h2>
@@ -106,14 +76,8 @@
           cuartiles
         </p>
       </div>
-      <div (click)="$event.stopPropagation()">
-        <app-line-chart 
-          [serie]="d.satisfaccion.serie" 
-          [meta]="d.satisfaccion.meta" 
-          [forecast]="forecastData()?.satisfaccion ?? null" 
-          [activeScenario]="forecast.activeScenario()"
-        />
-      </div>
+      <app-line-chart [serie]="d.satisfaccion.serie" [meta]="d.satisfaccion.meta"
+        [forecast]="forecastData()?.satisfaccion ?? null" [activeScenario]="forecast.activeScenario()" />
     </div>
   </section>
 
@@ -121,7 +85,6 @@
   <p class="error-msg error-msg--inline">No se pudo actualizar: {{ error() }}</p>
   }
 
-  <p class="foot">Dashboard Gerencial Apple Inc. - datos en vivo desde Supabase (PostgreSQL).</p>
   }
 </div>
 
@@ -142,3 +105,4 @@
 <app-chart-tooltip />
 <app-kpi-modal />
 <app-forecast-params-modal />
+<app-chat-widget />
